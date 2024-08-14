@@ -12,8 +12,6 @@ public class TestableOpponent
         }
     }
 
-    public string Manufacturer { get; set; }
-
     public string Name { get; set; }
 
     public string TeamName { get; set; }
@@ -103,7 +101,6 @@ public class TestableOpponent
 
         // Return true if the fields match:
         return Id == other.Id &&
-               Manufacturer == other.Manufacturer &&
                Name == other.Name &&
                TeamName == other.TeamName &&
                IsInPit == other.IsInPit &&
@@ -139,7 +136,6 @@ public class TestableOpponent
         SimHub.Logging.Current.Info("TeamName:       " + TeamName);
         SimHub.Logging.Current.Info("IsInPit:        " + IsInPit);
         SimHub.Logging.Current.Info("Position:       " + Position);
-        SimHub.Logging.Current.Info("Manufacturer:   " + Manufacturer);
         SimHub.Logging.Current.Info("CarName:        " + CarName);
         SimHub.Logging.Current.Info("CarClass:       " + CarClass);
         SimHub.Logging.Current.Info("IsPlayer:       " + IsPlayer);

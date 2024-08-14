@@ -1,37 +1,61 @@
 using System;
 using System.Linq;
+using CrewChiefV4.rFactor2_V2.rFactor2Data;
+using GameReaderCommon;
+using RfactorReader.RF2;
 
 public class TestableGameDataConverter
 {
-    public static TestableGameData FromGameData(IGameData data)
+    public static TestableGameData FromGameData(GameData data)
     {
         var result = new TestableGameData
         {
             GameName = data.GameName,
             GameRunning = data.GameRunning,
-            OldData = TestableStatusDataBaseConverter.FromStatusDataBase(data.OldData),
-            NewData = TestableStatusDataBaseConverter.FromStatusDataBase(data.NewData),
+            OldData = data.OldData != null ? TestableStatusDataBaseConverter.FromStatusDataBase(data.OldData) : null,
+            NewData = data.NewData != null ? TestableStatusDataBaseConverter.FromStatusDataBase(data.NewData) : null
         };
 
         return GameSpecificConvertions(result, data);
     }
 
-    private static TestableGameData GameSpecificConvertions(TestableGameData result, IGameData originData)
+    private static TestableGameData GameSpecificConvertions(TestableGameData result, GameData originData)
     {
         if (result.GameName == "RFactor2" || result.GameName == "LMU")
         {
-            RF2SpecificConvertions(result.OldData.Opponents, (originData as IGameData<IWrapV2>).GameOldData.Raw.telemetry.mVehicles);
-            RF2SpecificConvertions(result.NewData.Opponents, (originData as IGameData<IWrapV2>).GameNewData.Raw.telemetry.mVehicles);
+            if (result.OldData != null)
+            {
+                RF2SpecificConvertions(result.OldData.Opponents, (originData as GameData<WrapV2>).GameOldData.Raw.telemetry.mVehicles);
+            }
+
+            if (result.NewData != null)
+            {
+                RF2SpecificConvertions(result.NewData.Opponents, (originData as GameData<WrapV2>).GameNewData.Raw.telemetry.mVehicles);
+            }
         }
         else if (result.GameName == "AssettoCorsaCompetizione")
         {
-            SetCarClass(result.OldData.Opponents, "GT3");
-            SetCarClass(result.NewData.Opponents, "GT3");
+            if (result.OldData != null)
+            {
+                SetCarClass(result.OldData.Opponents, "GT3");
+            }
+
+            if (result.NewData != null)
+            {
+                SetCarClass(result.NewData.Opponents, "GT3");
+            }
         }
         else if (result.GameName == "F12023")
         {
-            SetCarClass(result.OldData.Opponents, "F1");
-            SetCarClass(result.NewData.Opponents, "F1");
+            if (result.OldData != null)
+            {
+                SetCarClass(result.OldData.Opponents, "F1");
+            }
+
+            if (result.NewData != null)
+            {
+                SetCarClass(result.NewData.Opponents, "F1");
+            }
         }
 
         return result;
@@ -47,21 +71,20 @@ public class TestableGameDataConverter
         return entries;
     }
 
-    private static TestableOpponent[] RF2SpecificConvertions(TestableOpponent[] entries, IrF2VehicleTelemetry[] rF2Entries)
+    private static TestableOpponent[] RF2SpecificConvertions(TestableOpponent[] entries, rF2VehicleTelemetry[] rF2Entries)
     {
         foreach (var entry in entries)
         {
-            IrF2VehicleTelemetry rF2Entry = Array.Find(rF2Entries, e =>
-             {
-                 var rF2Name = new string(System.Text.Encoding.Default.GetString(e.mVehicleName).Where(c => !char.IsControl(c)).ToArray());
-                 return rF2Name.Contains("#" + entry.CarNumber + " ");
-             });
-
-            if (rF2Entry != null)
+            foreach (var rF2Entry in rF2Entries)
             {
-                entry.FuelLoad = rF2Entry.mFuel;
-                entry.FuelCapacity = rF2Entry.mFuelCapacity;
-            }
+                var rF2Name = new string(System.Text.Encoding.Default.GetString(rF2Entry.mVehicleName).Where(c => !char.IsControl(c)).ToArray());
+
+                if (rF2Name.Contains("#" + entry.CarNumber + " "))
+                {
+                    entry.FuelLoad = rF2Entry.mFuel;
+                    entry.FuelCapacity = rF2Entry.mFuelCapacity;
+                }
+            };
         }
 
         return entries;

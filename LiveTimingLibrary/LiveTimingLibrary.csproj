@@ -66,10 +66,6 @@
     <Compile Include="LiveTimingPlugin.cs" />
     <Compile Include="LiveTimingPluginProcessor.cs" />
 
-    <Compile Include="Data\IGameData.cs" />
-    <Compile Include="Data\IStatusData.cs" />
-    <Compile Include="Data\IStatusDataBase.cs" />
-    <Compile Include="Data\IWrapV2.cs" />
     <Compile Include="Data\TestableGameData.cs" />
     <Compile Include="Data\TestableGameDataConverter.cs" />
     <Compile Include="Data\TestableStatusDataBase.cs" />

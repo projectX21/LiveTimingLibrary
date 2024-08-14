@@ -105,7 +105,6 @@ public class RaceEntryProcessor : IRaceEntryProcessor
         UpdateProperty(PropertyManagerConstants.TEAM_NAME, _newEntryData.TeamName);
         UpdateProperty(PropertyManagerConstants.CAR_NAME, _newEntryData.CarName);
         UpdateProperty(PropertyManagerConstants.CAR_CLASS, _newEntryData.CarClass);
-        UpdateProperty(PropertyManagerConstants.MANUFACTURER, _newEntryData.Manufacturer);
         UpdateProperty(PropertyManagerConstants.POSITION, _newEntryData.Position);
         UpdateProperty(PropertyManagerConstants.CURRENT_LAP_NUMBER, _newEntryData.CurrentLap);
         UpdateProperty(PropertyManagerConstants.CURRENT_SECTOR, _newEntryData.CurrentSector);
@@ -208,7 +207,6 @@ public class RaceEntryProcessor : IRaceEntryProcessor
 
     private void UpdateProperty<U>(string key, U value)
     {
-        //SimHub.Logging.Current.Info("Update key: " + key + ": " + value);
         _propertyManager.Add(_newEntryData.Position, key, value);
     }
 }

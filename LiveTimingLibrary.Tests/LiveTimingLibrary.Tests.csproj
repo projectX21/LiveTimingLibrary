@@ -19,6 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="GameReaderCommon" Version="1.0.0.0" Culture="neutral" PublicKeyToken="null">
+      <HintPath>$(SimHubDir)\GameReaderCommon.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

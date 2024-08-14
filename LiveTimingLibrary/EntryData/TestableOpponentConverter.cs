@@ -1,15 +1,15 @@
 using System;
+using GameReaderCommon;
 
 public class TestableOpponentConverter
 {
-    public static TestableOpponent FromOpponent(IOpponent o)
+    public static TestableOpponent FromOpponent(Opponent o)
     {
         return new TestableOpponent
         {
-            Manufacturer = o.Manufacturer,
             Name = o.Name,
             TeamName = o.TeamName,
-            IsInPit = o.IsCarInPit || o.IsCarInPitLane || o.StandingStillInPitLane,
+            IsInPit = o.IsCarInPit || o.IsCarInPitLane || (o.IsCarInGarage ?? false) || o.StandingStillInPitLane,
             Position = o.Position,
             CarName = o.CarName,
             CarClass = o.CarClass,

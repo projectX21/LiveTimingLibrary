@@ -26,7 +26,7 @@ public class LiveTimingPluginProcessor
     {
         if (gameData.NewData == null)
         {
-            SimHub.Logging.Current.Info("LiveTimingPluginProcessor::DataUpdate(): NewData isn't filled");
+            SimHub.Logging.Current.Debug("LiveTimingPluginProcessor::DataUpdate(): NewData isn't filled");
             return;
         }
 

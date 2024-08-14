@@ -1,21 +1,25 @@
+using SimHub.Plugins;
+
 public class PropertyManager : IPropertyManager
 {
-    private readonly IPluginManager _pluginManager;
-
-    public PropertyManager(IPluginManager pluginManager)
+    public PropertyManager()
     {
-        _pluginManager = pluginManager;
         AddAll();
     }
 
     public void Add<T>(string key, T value)
     {
-        _pluginManager.AddProperty(PropertyManagerConstants.PREFIX + key, GetType(), value);
+        AddInPluginManager(PropertyManagerConstants.PREFIX + key, value);
     }
 
     public void Add<T>(int pos, string key, T value)
     {
         Add("Driver" + pos + "." + key, value);
+    }
+
+    public virtual void AddInPluginManager<T>(string key, T value)
+    {
+        PluginManager.GetInstance().AddProperty(key, GetType(), value);
     }
 
     public void ResetAll()

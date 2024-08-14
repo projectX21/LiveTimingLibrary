@@ -4,5 +4,7 @@ public interface IPropertyManager
 
     void Add<T>(int pos, string k, T value);
 
+    void AddInPluginManager<T>(string key, T value);
+
     void ResetAll();
 }

@@ -158,7 +158,6 @@ public class RaceEntryProcessorTest
             TeamName = "Test Team Name",
             CarName = "Test Car Name",
             CarClass = "Test Car Class",
-            Manufacturer = "Test Manufacturer",
             IsInPit = false,
             CurrentLap = 2,
             CurrentTimes = new TestableSectorTimes(),
@@ -196,7 +195,6 @@ public class RaceEntryProcessorTest
         mockPropertyManager.Verify(m => m.Add(6, "TeamName", "Test Team Name"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "CarName", "Test Car Name"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "CarClass", "Test Car Class"), Times.Once());
-        mockPropertyManager.Verify(m => m.Add(6, "Manufacturer", "Test Manufacturer"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "Position", 6), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "CurrentLapNumber", (int?)2), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "CurrentSector", (int?)3), Times.Once());

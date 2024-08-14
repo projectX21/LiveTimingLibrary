@@ -1,0 +1,65 @@
+{
+    "tasks": [
+        {
+            "args": [
+                "build",
+                "${workspaceFolder}/LiveTiming.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "command": "dotnet",
+            "label": "build",
+            "problemMatcher": "$msCompile",
+            "type": "process"
+        },
+        {
+            "args": [
+                "publish",
+                "${workspaceFolder}/LiveTiming.sln",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary;ForceNoAlign"
+            ],
+            "command": "dotnet",
+            "label": "publish",
+            "problemMatcher": "$msCompile",
+            "type": "process"
+        },
+        {
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/LiveTiming.sln"
+            ],
+            "command": "dotnet",
+            "label": "watch",
+            "problemMatcher": "$msCompile",
+            "type": "process"
+        },
+        {
+            "args": [
+                "test"
+            ],
+            "command": "dotnet",
+            "group": "test",
+            "isBackground": true,
+            "label": ".NET Core Test with debugger",
+            "options": {
+                "cwd": "${workspaceFolder}/LiveTimingLibrary.Tests",
+                "env": {
+                    "VSTEST_HOST_DEBUG": "1"
+                }
+            },
+            "presentation": {
+                "echo": true,
+                "focus": false,
+                "panel": "shared",
+                "reveal": "always"
+            },
+            "problemMatcher": [
+            ],
+            "type": "process"
+        }
+    ],
+    "version": "2.0.0"
+}

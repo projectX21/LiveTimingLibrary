@@ -18,7 +18,7 @@ namespace LiveTimingLibrary
         {
             if (_processor == null)
             {
-                var propertyManager = new PropertyManager((IPluginManager)pluginManager);
+                var propertyManager = new PropertyManager();
 
                 var raceEventHandler = new RaceEventHandler(
                     new RaceEventRecoveryFile(new RaceEventRecoveryFileEventSelector<PitEvent>(), new RaceEventRecoveryFileEventSelector<PlayerFinishedLapEvent>()),
@@ -32,7 +32,7 @@ namespace LiveTimingLibrary
             }
 
             _processor.DataUpdate(
-                TestableGameDataConverter.FromGameData((IGameData)gameData),
+                TestableGameDataConverter.FromGameData(gameData),
                 gameData.SessionId
             );
         }
