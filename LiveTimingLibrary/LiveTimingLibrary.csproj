@@ -1,0 +1,125 @@
+﻿<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+
+  <PropertyGroup>
+    <ProjectGuid>{833040C9-FE5E-4CCF-B21D-71979E049B6E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LiveTimingLibrary</RootNamespace>
+    <AssemblyName>LiveTimingPlugin</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <SimHubDir>C:\Program Files (x86)\SimHub</SimHubDir>
+    <OutputPath>$(SimHubDir)</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="GameReaderCommon">
+      <HintPath>$(SimHubDir)\GameReaderCommon.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>$(SimHubDir)\GameReaderCommon.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="InputManagerCS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SimHubDir)\InputManagerCS.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SimHubDir)\log4net.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MahApps.Metro, Version=1.5.0.23, Culture=neutral, PublicKeyToken=f4fb5a3c4d1e5b4f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SimHubDir)\MahApps.Metro.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SimHub.Logging, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SimHubDir)\SimHub.Logging.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SimHub.Plugins">
+      <HintPath>$(SimHubDir)\SimHub.Plugins.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="RfactorReader">
+      <HintPath>$(SimHubDir)\RfactorReader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+        <Reference Include="ACSharedMemory">
+      <HintPath>$(SimHubDir)\ACSharedMemory.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="LiveTimingPlugin.cs" />
+    <Compile Include="LiveTimingPluginProcessor.cs" />
+
+    <Compile Include="Data\IGameData.cs" />
+    <Compile Include="Data\IStatusData.cs" />
+    <Compile Include="Data\IStatusDataBase.cs" />
+    <Compile Include="Data\IWrapV2.cs" />
+    <Compile Include="Data\TestableGameData.cs" />
+    <Compile Include="Data\TestableGameDataConverter.cs" />
+    <Compile Include="Data\TestableStatusDataBase.cs" />
+    <Compile Include="Data\TestableStatusDataBaseConverter.cs" />
+
+    <Compile Include="EntryData\EntryPitData.cs" />
+    <Compile Include="EntryData\FastestFragmentTimesStore.cs" />
+    <Compile Include="EntryData\IFastestFragmentTimesStore.cs" />
+    <Compile Include="EntryData\IOpponent.cs" />
+    <Compile Include="EntryData\ISectorTimes.cs" />
+    <Compile Include="EntryData\TestableOpponent.cs" />
+    <Compile Include="EntryData\TestableOpponentConverter.cs" />
+    <Compile Include="EntryData\TestableSectorTimes.cs" />
+
+    <Compile Include="Processors\GameProcessor.cs" />
+    <Compile Include="Processors\IGameProcessor.cs" />
+    <Compile Include="Processors\IRaceEntryProcessor.cs" />
+    <Compile Include="Processors\RaceEntryProcessor.cs" />
+
+    <Compile Include="PropertyManager\IPluginManager.cs" />
+    <Compile Include="PropertyManager\IPropertyManager.cs" />
+    <Compile Include="PropertyManager\PropertyManager.cs" />
+    <Compile Include="PropertyManager\PropertyManagerConstants.cs" />
+
+    <Compile Include="RaceEvents\IPitEventStore.cs" />
+    <Compile Include="RaceEvents\IPlayerFinishedLapEventStore.cs" />
+    <Compile Include="RaceEvents\IRaceEventHandler.cs" />
+    <Compile Include="RaceEvents\IRaceEventRecoveryFile.cs" />
+    <Compile Include="RaceEvents\IRaceEventRecoveryFileEventSelector.cs" />
+    <Compile Include="RaceEvents\PitEvent.cs" />
+    <Compile Include="RaceEvents\PitEventStore.cs" />
+    <Compile Include="RaceEvents\PlayerFinishedLapEvent.cs" />
+    <Compile Include="RaceEvents\PlayerFinishedLapEventStore.cs" />
+    <Compile Include="RaceEvents\RaceEvent.cs" />
+    <Compile Include="RaceEvents\RaceEventHandler.cs" />
+    <Compile Include="RaceEvents\RaceEventRecoveryFile.cs" />
+    <Compile Include="RaceEvents\RaceEventRecoveryFileEventSelector.cs" />
+    <Compile Include="RaceEvents\RaceEventType.cs" />
+    <Compile Include="RaceEvents\SessionReloadEvent.cs" />
+    
+    <Compile Include="Types\LapFragmentType.cs" />
+    <Compile Include="Types\SessionType.cs" />
+    
+    <Compile Include="Utils\GapCalculator.cs" />
+    <Compile Include="Utils\TimeSpanFormatter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="LiveTimingLibrary.Tests" />
+  </ItemGroup>
+
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
