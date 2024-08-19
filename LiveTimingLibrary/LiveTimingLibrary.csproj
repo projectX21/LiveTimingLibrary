@@ -110,6 +110,7 @@
     <Compile Include="Types\SessionType.cs" />
     
     <Compile Include="Utils\GapCalculator.cs" />
+    <Compile Include="Utils\SessionIdGenerator.cs" />
     <Compile Include="Utils\TimeSpanFormatter.cs" />
   </ItemGroup>
 

@@ -31,10 +31,7 @@ namespace LiveTimingLibrary
                 _processor = new LiveTimingPluginProcessor(propertyManager, raceEventHandler, raceEntryProcessor);
             }
 
-            _processor.DataUpdate(
-                TestableGameDataConverter.FromGameData(gameData),
-                gameData.SessionId
-            );
+            _processor.DataUpdate(TestableGameDataConverter.FromGameData(gameData));
         }
 
         public void End(PluginManager pluginManager) { }

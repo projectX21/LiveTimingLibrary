@@ -3,9 +3,19 @@ using System.Linq;
 
 public class TestableStatusDataBase
 {
-    public Guid SessionId { get; set; }
+    public string GameName { get; set; } // only needed for the creation of the SessionId
+
+    public string TrackName { get; set; }
 
     public string SessionName { get; set; }
+
+    public string SessionId
+    {
+        get
+        {
+            return SessionIdGenerator.Generate(this);
+        }
+    }
 
     public int CurrentLap { get; set; }
 

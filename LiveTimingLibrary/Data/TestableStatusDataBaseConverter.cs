@@ -4,10 +4,12 @@ using GameReaderCommon;
 
 public class TestableStatusDataBaseConverter
 {
-    public static TestableStatusDataBase FromStatusDataBase(StatusDataBase data)
+    public static TestableStatusDataBase FromStatusDataBase(StatusDataBase data, string GameName)
     {
         return new TestableStatusDataBase
         {
+            GameName = GameName,
+            TrackName = data.TrackName,
             SessionName = data.SessionTypeName,
             CurrentLap = data.CurrentLap,
             CurrentLapTime = data.CurrentLapTime,

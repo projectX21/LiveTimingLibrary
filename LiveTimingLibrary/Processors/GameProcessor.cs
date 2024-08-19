@@ -15,6 +15,8 @@ public class GameProcessor : IGameProcessor
 
     protected SessionType _sessionType;
 
+    private string _lastSessionId;
+
     public GameProcessor(IPropertyManager propertyManager, IRaceEventHandler handler, IRaceEntryProcessor processor, string currentGameName)
     {
         _propertyManager = propertyManager;
@@ -32,7 +34,7 @@ public class GameProcessor : IGameProcessor
 
     public void Run(TestableGameData gameData)
     {
-        if (!DoCalculationCycle(gameData))
+        if (!gameData.GameRunning)
         {
             SimHub.Logging.Current.Debug("GameProcessor::Run(): Omit calculation cycle");
             return;
@@ -54,22 +56,20 @@ public class GameProcessor : IGameProcessor
         else
         {
             ProcessEntries(entries);
-
         }
-    }
 
-    private bool DoCalculationCycle(TestableGameData gameData)
-    {
-        return gameData.GameRunning && gameData.OldData != null && gameData.NewData != null;
+        _lastSessionId = gameData.NewData.SessionId;
     }
 
     private bool HasSessionIdChanged()
     {
-        return _currentGameData.OldData.SessionId != _currentGameData.NewData.SessionId;
+        // Don't use OldData.SessionId here, because then it will never notificate for a session change, because the old data isn't filled initially.
+        return _lastSessionId?.Length > 0 && _lastSessionId != (_currentGameData.NewData?.SessionId ?? "");
     }
 
     private void HandleSessionIdChange()
     {
+        SimHub.Logging.Current.Info($"GameProcessor::HandleSessionIdChange(): Session ID has changed from: {_lastSessionId} to: {_currentGameData.NewData.SessionId}. Reset all properties, reinit stores for pit events and player finished lap events");
         _propertyManager.ResetAll();
         _raceEventHandler.ReinitPitEventStore();
         _raceEventHandler.ReinitPlayerFinishedLapEventStore();

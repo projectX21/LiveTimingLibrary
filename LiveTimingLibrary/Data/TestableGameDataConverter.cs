@@ -12,8 +12,8 @@ public class TestableGameDataConverter
         {
             GameName = data.GameName,
             GameRunning = data.GameRunning,
-            OldData = data.OldData != null ? TestableStatusDataBaseConverter.FromStatusDataBase(data.OldData) : null,
-            NewData = data.NewData != null ? TestableStatusDataBaseConverter.FromStatusDataBase(data.NewData) : null
+            OldData = data.OldData != null ? TestableStatusDataBaseConverter.FromStatusDataBase(data.OldData, data.GameName) : null,
+            NewData = data.NewData != null ? TestableStatusDataBaseConverter.FromStatusDataBase(data.NewData, data.GameName) : null
         };
 
         return GameSpecificConvertions(result, data);

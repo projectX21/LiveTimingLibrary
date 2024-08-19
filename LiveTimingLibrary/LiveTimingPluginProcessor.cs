@@ -12,8 +12,6 @@ public class LiveTimingPluginProcessor
 
     private readonly IRaceEntryProcessor _raceEntryProcessor;
 
-    private Guid _lastSessionId;
-
     public LiveTimingPluginProcessor(IPropertyManager propertyManager, IRaceEventHandler raceEventHandler, IRaceEntryProcessor raceEntryProcessor)
     {
         _propertyManager = propertyManager;
@@ -22,7 +20,7 @@ public class LiveTimingPluginProcessor
 
     }
 
-    public void DataUpdate(TestableGameData gameData, Guid sessionId)
+    public void DataUpdate(TestableGameData gameData)
     {
         if (gameData.NewData == null)
         {
@@ -36,22 +34,6 @@ public class LiveTimingPluginProcessor
             GameProcessor = new GameProcessor(_propertyManager, _raceEventHandler, _raceEntryProcessor, gameData.GameName);
         }
 
-        SetSessionId(gameData, sessionId);
         GameProcessor.Run(gameData);
-
-        _lastSessionId = sessionId;
-    }
-
-    private void SetSessionId(TestableGameData gameData, Guid sessionId)
-    {
-        if (gameData.NewData != null)
-        {
-            gameData.NewData.SessionId = sessionId;
-        }
-
-        if (gameData.OldData != null)
-        {
-            gameData.OldData.SessionId = _lastSessionId;
-        }
     }
 }
