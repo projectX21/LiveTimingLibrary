@@ -4,14 +4,16 @@ public class SessionReloadEvent : RaceEvent
 {
     public int LapNumber { get; }
 
-    public SessionReloadEvent(int lapNumber)
+    public SessionReloadEvent(string sessionId, int lapNumber)
     {
+        SessionId = sessionId;
         Type = RaceEventType.SessionReload;
         LapNumber = lapNumber;
     }
 
-    public SessionReloadEvent(int lapNumber, TimeSpan elapsedTime)
+    public SessionReloadEvent(string sessionId, int lapNumber, TimeSpan elapsedTime)
     {
+        SessionId = sessionId;
         Type = RaceEventType.SessionReload;
         LapNumber = lapNumber;
         ElapsedTime = elapsedTime;
@@ -26,26 +28,28 @@ public class SessionReloadEvent : RaceEvent
 
         var tokens = SplitLine(recoveryFileFormat);
 
-        if (tokens.Length != 3)
+        if (tokens.Length != 4)
         {
             throw new Exception("SessionReloadEvent(): Cannot create SessionReloadEvent from recovery file! Invalid line:  " + recoveryFileFormat);
         }
 
+        SessionId = tokens[0];
         Type = RaceEventType.SessionReload;
-        LapNumber = ToInt(tokens[1]);
-        ElapsedTime = ToTimeSpan(tokens[2]);
+        LapNumber = ToInt(tokens[2]);
+        ElapsedTime = ToTimeSpan(tokens[3]);
     }
 
     public override string ToRecoveryFileFormat()
     {
-        return RaceEventTypeConverter.FromEnum(Type) + s_recoveryFilePatternDelimiter
+        return SessionId + s_recoveryFilePatternDelimiter
+          + RaceEventTypeConverter.FromEnum(Type) + s_recoveryFilePatternDelimiter
           + LapNumber + s_recoveryFilePatternDelimiter
           + ElapsedTime;
     }
 
     public override string ToString()
     {
-        return $"[ type: {RaceEventTypeConverter.FromEnum(Type)}, LapNumber: {LapNumber}, ElapsedTime: {ElapsedTime} ]";
+        return $"[ sessionId: {SessionId}, type: {RaceEventTypeConverter.FromEnum(Type)}, LapNumber: {LapNumber}, ElapsedTime: {ElapsedTime} ]";
     }
 
     public override bool Equals(object obj)
@@ -63,7 +67,8 @@ public class SessionReloadEvent : RaceEvent
         }
 
         // Return true if the fields match:
-        return Type == other.Type &&
+        return SessionId == other.SessionId &&
+               Type == other.Type &&
                LapNumber == other.LapNumber &&
                ElapsedTime == other.ElapsedTime;
     }

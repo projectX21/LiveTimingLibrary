@@ -39,8 +39,8 @@ public class RaceEventHandler : IRaceEventHandler
         SimHub.Logging.Current.Debug($"RaceEventHandler::AddEvent(): add SessionReloadEvent: {sessionReloadEvent}");
 
         _recoveryFile.AddEvent(sessionReloadEvent);
-        ReinitPitEventStore();
-        ReinitPlayerFinishedLapEventStore();
+        ReinitPitEventStore(sessionReloadEvent.SessionId);
+        ReinitPlayerFinishedLapEventStore(sessionReloadEvent.SessionId);
     }
 
     public void SetCurrentLapTime(TimeSpan currentLapTime)
@@ -48,16 +48,16 @@ public class RaceEventHandler : IRaceEventHandler
         _lapEventStore.CurrentLapTime = currentLapTime;
     }
 
-    public void ReinitPitEventStore()
+    public void ReinitPitEventStore(string sessionId)
     {
         _pitEventStore.Reset();
-        _recoveryFile.ReadPitEvents().ForEach(_pitEventStore.Add);
+        _recoveryFile.ReadPitEvents(sessionId).ForEach(_pitEventStore.Add);
     }
 
-    public void ReinitPlayerFinishedLapEventStore()
+    public void ReinitPlayerFinishedLapEventStore(string sessionId)
     {
         _lapEventStore.Reset();
-        _recoveryFile.ReadPlayerFinishedLapEvents().ForEach(_lapEventStore.Add);
+        _recoveryFile.ReadPlayerFinishedLapEvents(sessionId).ForEach(_lapEventStore.Add);
     }
 
     public EntryPitData GetPitDataByEntryId(string entryId)

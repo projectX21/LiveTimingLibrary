@@ -33,16 +33,16 @@ public class RaceEventRecoveryFile : IRaceEventRecoveryFile
         Write(raceEvent.ToRecoveryFileFormat());
     }
 
-    public List<PitEvent> ReadPitEvents()
+    public List<PitEvent> ReadPitEvents(string sessionId)
     {
-        var pitEvents = _pitEventSelector.SelectSpecificEvents(_filePath);
+        var pitEvents = _pitEventSelector.SelectSpecificEvents(_filePath, sessionId);
         SimHub.Logging.Current.Debug($"RaceEventRecoveryFile::ReadPitEvents(): found {pitEvents.Count} events");
         return pitEvents;
     }
 
-    public List<PlayerFinishedLapEvent> ReadPlayerFinishedLapEvents()
+    public List<PlayerFinishedLapEvent> ReadPlayerFinishedLapEvents(string sessionId)
     {
-        var playerFinishedLapEvents = _finishedLapEventSelector.SelectSpecificEvents(_filePath);
+        var playerFinishedLapEvents = _finishedLapEventSelector.SelectSpecificEvents(_filePath, sessionId);
         SimHub.Logging.Current.Debug($"RaceEventRecoveryFile::ReadPlayerFinishedLapEvents(): found {playerFinishedLapEvents.Count} events");
         return playerFinishedLapEvents;
     }

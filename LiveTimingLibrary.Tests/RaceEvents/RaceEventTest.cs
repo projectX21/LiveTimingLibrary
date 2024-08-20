@@ -26,10 +26,10 @@ public class RaceEventTest
     [Fact]
     public void TestGetRaceEventTypeFromLine()
     {
-        Assert.Equal(RaceEventType.PlayerFinishedLap, RaceEvent.GetRaceEventTypeFromLine("PLAYER_FINISHED_LAP;2;00:01:41.4840000;00:03:21.4920000;00:56:38.508"));
-        Assert.Equal(RaceEventType.PitIn, RaceEvent.GetRaceEventTypeFromLine("PIT_IN;107;14;00:52:29.0490000;01:07:30.9510000"));
-        Assert.Equal(RaceEventType.PitOut, RaceEvent.GetRaceEventTypeFromLine("PIT_OUT;107;15;00:54:12.3710000;01:05:47.6290000"));
-        Assert.Equal(RaceEventType.SessionReload, RaceEvent.GetRaceEventTypeFromLine("SESSION_RELOAD;12;00:37:18.1090000;00:21:41.8910000"));
+        Assert.Equal(RaceEventType.PlayerFinishedLap, RaceEvent.GetRaceEventTypeFromLine("46452ab12lef;PLAYER_FINISHED_LAP;2;00:01:41.4840000;00:03:21.4920000;00:56:38.508"));
+        Assert.Equal(RaceEventType.PitIn, RaceEvent.GetRaceEventTypeFromLine("46452ab12lef;PIT_IN;107;14;00:52:29.0490000;01:07:30.9510000"));
+        Assert.Equal(RaceEventType.PitOut, RaceEvent.GetRaceEventTypeFromLine("46452ab12lef;PIT_OUT;107;15;00:54:12.3710000;01:05:47.6290000"));
+        Assert.Equal(RaceEventType.SessionReload, RaceEvent.GetRaceEventTypeFromLine("46452ab12lef;SESSION_RELOAD;12;00:37:18.1090000;00:21:41.8910000"));
     }
 
     [Fact]

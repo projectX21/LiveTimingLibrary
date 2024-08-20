@@ -6,15 +6,17 @@ public class PitEvent : RaceEvent
 
     public int LapNumber { get; }
 
-    public PitEvent(RaceEventType type, string entryId, int lapNumber)
+    public PitEvent(string sessionId, RaceEventType type, string entryId, int lapNumber)
     {
+        SessionId = sessionId;
         Type = type;
         EntryId = entryId;
         LapNumber = lapNumber;
     }
 
-    public PitEvent(RaceEventType type, string entryId, int lapNumber, TimeSpan elapsedTime) : base(type, elapsedTime)
+    public PitEvent(string sessionId, RaceEventType type, string entryId, int lapNumber, TimeSpan elapsedTime) : base(sessionId, type, elapsedTime)
     {
+        SessionId = sessionId;
         EntryId = entryId;
         LapNumber = lapNumber;
     }
@@ -28,20 +30,22 @@ public class PitEvent : RaceEvent
 
         var tokens = SplitLine(recoveryFileFormat);
 
-        if (tokens.Length != 4)
+        if (tokens.Length != 5)
         {
             throw new Exception("PitEvent(): Cannot init PitEvent! Invalid line:  " + recoveryFileFormat);
         }
 
-        Type = RaceEventTypeConverter.ToEnum(tokens[0]);
-        EntryId = tokens[1];
-        LapNumber = ToInt(tokens[2]);
-        ElapsedTime = ToTimeSpan(tokens[3]);
+        SessionId = tokens[0];
+        Type = RaceEventTypeConverter.ToEnum(tokens[1]);
+        EntryId = tokens[2];
+        LapNumber = ToInt(tokens[3]);
+        ElapsedTime = ToTimeSpan(tokens[4]);
     }
 
     public override string ToRecoveryFileFormat()
     {
-        return RaceEventTypeConverter.FromEnum(Type) + s_recoveryFilePatternDelimiter
+        return SessionId + s_recoveryFilePatternDelimiter
+         + RaceEventTypeConverter.FromEnum(Type) + s_recoveryFilePatternDelimiter
          + EntryId + s_recoveryFilePatternDelimiter
          + LapNumber + s_recoveryFilePatternDelimiter
          + ElapsedTime;
@@ -49,7 +53,7 @@ public class PitEvent : RaceEvent
 
     public override string ToString()
     {
-        return $"[ type: {RaceEventTypeConverter.FromEnum(Type)}, EntryId: {EntryId}, LapNumber: {LapNumber}, ElapsedTime: {ElapsedTime} ]";
+        return $"[ sessionId: {SessionId}, type: {RaceEventTypeConverter.FromEnum(Type)}, EntryId: {EntryId}, LapNumber: {LapNumber}, ElapsedTime: {ElapsedTime} ]";
     }
 
     public override bool Equals(object obj)
@@ -67,7 +71,8 @@ public class PitEvent : RaceEvent
         }
 
         // Return true if the fields match:
-        return Type == other.Type &&
+        return SessionId == other.SessionId &&
+               Type == other.Type &&
                EntryId == other.EntryId &&
                LapNumber == other.LapNumber &&
                ElapsedTime == other.ElapsedTime;

@@ -10,9 +10,9 @@ public interface IRaceEventHandler
 
     void SetCurrentLapTime(TimeSpan currentLapTime);
 
-    void ReinitPitEventStore();
+    void ReinitPitEventStore(string sessionId);
 
-    void ReinitPlayerFinishedLapEventStore();
+    void ReinitPlayerFinishedLapEventStore(string sessionId);
 
     EntryPitData GetPitDataByEntryId(string entryId);
 }

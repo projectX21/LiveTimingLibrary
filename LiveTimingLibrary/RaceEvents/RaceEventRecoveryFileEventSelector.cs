@@ -4,7 +4,7 @@ using System.IO;
 
 public class RaceEventRecoveryFileEventSelector<T> : IRaceEventRecoveryFileEventSelector<T> where T : RaceEvent
 {
-    public List<T> SelectSpecificEvents(string filePath)
+    public List<T> SelectSpecificEvents(string filePath, string sessionId)
     {
         if (!File.Exists(filePath))
         {
@@ -21,7 +21,12 @@ public class RaceEventRecoveryFileEventSelector<T> : IRaceEventRecoveryFileEvent
         {
             var raceEvent = ToRaceEvent(lines[i]);
 
-            if (raceEvent is SessionReloadEvent @sessionEvent)
+            if (raceEvent.SessionId != sessionId)
+            {
+                SimHub.Logging.Current.Debug($"RaceEventRecoveryFileEventSelector::SelectSpecificEvents(): session id doesn't match. Searching for: {sessionId}, found: {raceEvent.SessionId}");
+                continue;
+            }
+            else if (raceEvent is SessionReloadEvent @sessionEvent)
             {
                 elapsedTimeLastReload = @sessionEvent.ElapsedTime;
                 SimHub.Logging.Current.Debug($"RaceEventRecoveryFileEventSelector::SelectSpecificEvents(): set elapsedTimeLastReload to: {elapsedTimeLastReload}");

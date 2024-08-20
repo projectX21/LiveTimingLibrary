@@ -4,7 +4,7 @@ public interface IRaceEventRecoveryFile
 {
     void AddEvent(RaceEvent raceEvent);
 
-    List<PitEvent> ReadPitEvents();
+    List<PitEvent> ReadPitEvents(string sessionId);
 
-    List<PlayerFinishedLapEvent> ReadPlayerFinishedLapEvents();
+    List<PlayerFinishedLapEvent> ReadPlayerFinishedLapEvents(string sessionId);
 }

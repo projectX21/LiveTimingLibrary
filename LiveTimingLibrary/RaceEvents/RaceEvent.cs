@@ -4,6 +4,8 @@ public abstract class RaceEvent
 {
     protected static readonly char s_recoveryFilePatternDelimiter = ';';
 
+    public string SessionId { get; set; }
+
     public RaceEventType Type { get; protected set; }
 
     public TimeSpan ElapsedTime { get; set; }
@@ -15,8 +17,9 @@ public abstract class RaceEvent
         Type = type;
     }
 
-    public RaceEvent(RaceEventType type, TimeSpan elapsedTime)
+    public RaceEvent(string sessionId, RaceEventType type, TimeSpan elapsedTime)
     {
+        SessionId = SessionId;
         Type = type;
         ElapsedTime = elapsedTime;
     }
@@ -26,7 +29,7 @@ public abstract class RaceEvent
     public static RaceEventType GetRaceEventTypeFromLine(string line)
     {
         var tokens = SplitLine(line);
-        return RaceEventTypeConverter.ToEnum(tokens[0]);
+        return RaceEventTypeConverter.ToEnum(tokens[1]);
     }
 
     protected static string[] SplitLine(string line)

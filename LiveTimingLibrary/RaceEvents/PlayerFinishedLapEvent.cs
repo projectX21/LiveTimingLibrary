@@ -6,15 +6,17 @@ public class PlayerFinishedLapEvent : RaceEvent
 
     public TimeSpan LapTime { get; }
 
-    public PlayerFinishedLapEvent(int lapNumber, TimeSpan lapTime)
+    public PlayerFinishedLapEvent(string sessionId, int lapNumber, TimeSpan lapTime)
     {
+        SessionId = sessionId;
         Type = RaceEventType.PlayerFinishedLap;
         LapNumber = lapNumber;
         LapTime = lapTime;
     }
 
-    public PlayerFinishedLapEvent(int lapNumber, TimeSpan lapTime, TimeSpan elapsedTime)
+    public PlayerFinishedLapEvent(string sessionId, int lapNumber, TimeSpan lapTime, TimeSpan elapsedTime)
     {
+        SessionId = sessionId;
         Type = RaceEventType.PlayerFinishedLap;
         LapNumber = lapNumber;
         LapTime = lapTime;
@@ -30,20 +32,22 @@ public class PlayerFinishedLapEvent : RaceEvent
 
         var tokens = SplitLine(recoveryFileFormat);
 
-        if (tokens.Length != 4)
+        if (tokens.Length != 5)
         {
             throw new Exception("PlayerFinishedLapEvent(): Cannot create PlayerFinishedLapEvent from recovery file! Invalid line:  " + recoveryFileFormat);
         }
 
+        SessionId = tokens[0];
         Type = RaceEventType.PlayerFinishedLap;
-        LapNumber = ToInt(tokens[1]);
-        LapTime = ToTimeSpan(tokens[2]);
-        ElapsedTime = ToTimeSpan(tokens[3]);
+        LapNumber = ToInt(tokens[2]);
+        LapTime = ToTimeSpan(tokens[3]);
+        ElapsedTime = ToTimeSpan(tokens[4]);
     }
 
     public override string ToRecoveryFileFormat()
     {
-        return RaceEventTypeConverter.FromEnum(Type) + s_recoveryFilePatternDelimiter
+        return SessionId + s_recoveryFilePatternDelimiter
+         + RaceEventTypeConverter.FromEnum(Type) + s_recoveryFilePatternDelimiter
          + LapNumber + s_recoveryFilePatternDelimiter
          + LapTime + s_recoveryFilePatternDelimiter
          + ElapsedTime;
@@ -51,7 +55,7 @@ public class PlayerFinishedLapEvent : RaceEvent
 
     public override string ToString()
     {
-        return $"[ type: {RaceEventTypeConverter.FromEnum(Type)}, LapNumber: {LapNumber}, LapTime: {LapTime}, ElapsedTime: {ElapsedTime} ]";
+        return $"[ sessionId: {SessionId}, type: {RaceEventTypeConverter.FromEnum(Type)}, LapNumber: {LapNumber}, LapTime: {LapTime}, ElapsedTime: {ElapsedTime} ]";
     }
 
 
@@ -70,7 +74,8 @@ public class PlayerFinishedLapEvent : RaceEvent
         }
 
         // Return true if the fields match:
-        return Type == other.Type &&
+        return SessionId == other.SessionId &&
+               Type == other.Type &&
                LapNumber == other.LapNumber &&
                ElapsedTime == other.ElapsedTime;
     }

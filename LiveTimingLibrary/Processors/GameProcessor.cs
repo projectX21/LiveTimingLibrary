@@ -71,8 +71,8 @@ public class GameProcessor : IGameProcessor
     {
         SimHub.Logging.Current.Info($"GameProcessor::HandleSessionIdChange(): Session ID has changed from: {_lastSessionId} to: {_currentGameData.NewData.SessionId}. Reset all properties, reinit stores for pit events and player finished lap events");
         _propertyManager.ResetAll();
-        _raceEventHandler.ReinitPitEventStore();
-        _raceEventHandler.ReinitPlayerFinishedLapEventStore();
+        _raceEventHandler.ReinitPitEventStore(_currentGameData.NewData.SessionId);
+        _raceEventHandler.ReinitPlayerFinishedLapEventStore(_currentGameData.NewData.SessionId);
     }
 
     private bool WasSessionReloaded()
@@ -90,7 +90,7 @@ public class GameProcessor : IGameProcessor
 
     private void HandleSessionReload()
     {
-        _raceEventHandler.AddEvent(new SessionReloadEvent(_currentGameData.NewData.CurrentLap));
+        _raceEventHandler.AddEvent(new SessionReloadEvent(_currentGameData.NewData.SessionId, _currentGameData.NewData.CurrentLap));
     }
 
     private void UpdateSessionType()
@@ -112,6 +112,7 @@ public class GameProcessor : IGameProcessor
         for (var i = 0; i < entries.Length; i++)
         {
             _raceEntryProcessor.Process(
+                _currentGameData.NewData.SessionId,
                 _sessionType,
                 entries[i],
                 FindOldDataById(entries[i].Id),

@@ -6,6 +6,8 @@ public class RaceEntryProcessor : IRaceEntryProcessor
 
     private readonly IRaceEventHandler _raceEventHandler;
 
+    private string _sessionId;
+
     private SessionType _sessionType;
 
     private IFastestFragmentTimesStore _fastestFragmentTimesStore;
@@ -26,12 +28,13 @@ public class RaceEntryProcessor : IRaceEntryProcessor
 
 
     public void Process(
-        SessionType sessionType,
+        string sessionId, SessionType sessionType,
         TestableOpponent newData, TestableOpponent oldData,
         TestableOpponent leaderData, TestableOpponent inFrontData,
         IFastestFragmentTimesStore timesStore
     )
     {
+        _sessionId = sessionId;
         _sessionType = sessionType;
         _newEntryData = newData;
         _oldEntryData = oldData;
@@ -63,6 +66,7 @@ public class RaceEntryProcessor : IRaceEntryProcessor
         {
             _raceEventHandler.AddEvent(
                 new PlayerFinishedLapEvent(
+                    _sessionId,
                     _newEntryData.CurrentLap - 1 ?? 1,
                     _newEntryData.LastTimes.GetByLapFragmentType(LapFragmentType.FULL_LAP) ?? TimeSpan.Zero
                 )
@@ -80,13 +84,13 @@ public class RaceEntryProcessor : IRaceEntryProcessor
         if (_oldEntryData.IsInPit == false && _newEntryData.IsInPit == true)
         {
             _raceEventHandler.AddEvent(
-                new PitEvent(RaceEventType.PitIn, _newEntryData.Id, _newEntryData.CurrentLap ?? 1)
+                new PitEvent(_sessionId, RaceEventType.PitIn, _newEntryData.Id, _newEntryData.CurrentLap ?? 1)
             );
         }
         else if (_oldEntryData.IsInPit == true && _newEntryData.IsInPit == false)
         {
             _raceEventHandler.AddEvent(
-                new PitEvent(RaceEventType.PitOut, _newEntryData.Id, _newEntryData.CurrentLap ?? 1)
+                new PitEvent(_sessionId, RaceEventType.PitOut, _newEntryData.Id, _newEntryData.CurrentLap ?? 1)
             );
         }
     }
