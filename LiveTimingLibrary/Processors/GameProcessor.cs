@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using AcTools.Utils.Helpers;
 
@@ -12,6 +13,8 @@ public class GameProcessor : IGameProcessor
     protected readonly IRaceEntryProcessor _raceEntryProcessor;
 
     protected TestableGameData _currentGameData;
+
+    protected TestableOpponent _currentPlayerData;
 
     protected SessionType _sessionType;
 
@@ -41,9 +44,11 @@ public class GameProcessor : IGameProcessor
         }
 
         _currentGameData = gameData;
+        var entries = GetEntries().Select(e => NormalizeEntryData(e, FindOldDataById(e.Id))).ToArray();
+        _currentPlayerData = FindPlayer(entries);
+
         UpdateSessionType();
         UpdateCurrentLapTimeInLapEventStore();
-        var entries = GetEntries().Select(e => NormalizeEntryData(e, FindOldDataById(e.Id))).ToArray();
 
         if (HasSessionIdChanged())
         {
@@ -77,15 +82,14 @@ public class GameProcessor : IGameProcessor
 
     private bool WasSessionReloaded()
     {
-        return _currentGameData.OldData != null && _currentGameData.NewData != null &&
+        var oldData = FindOldDataById(_currentPlayerData.Id);
+
+        return oldData != null && _currentPlayerData != null &&
             (
-                _currentGameData.OldData.CurrentLap > _currentGameData.NewData.CurrentLap ||
+                oldData.CurrentLap > _currentPlayerData.CurrentLap ||
                 (
-                    _currentGameData.OldData.CurrentLap == _currentGameData.NewData.CurrentLap
-                    // in ACC the currentLapTime resets a few milliseconds before the currentLapTime is incremented by one
-                    // -> this lead to a sessionReloadEvent, because the lap number was identical, but the OldData currentLapTime was bigger than in the NewData
-                    && _currentGameData.NewData.CurrentLapTime.TotalMilliseconds > 200
-                    && _currentGameData.OldData.CurrentLapTime.TotalSeconds > _currentGameData.NewData.CurrentLapTime.TotalSeconds
+                    oldData.CurrentLap == _currentPlayerData.CurrentLap
+                    && oldData.CurrentLapTime?.TotalSeconds > _currentPlayerData.CurrentLapTime?.TotalSeconds
                 )
             )
         ;
@@ -93,7 +97,10 @@ public class GameProcessor : IGameProcessor
 
     private void HandleSessionReload()
     {
-        _raceEventHandler.AddEvent(new SessionReloadEvent(_currentGameData.NewData.SessionId, _currentGameData.NewData.CurrentLap));
+        if (_currentPlayerData?.CurrentLap != null)
+        {
+            _raceEventHandler.AddEvent(new SessionReloadEvent(_currentGameData.NewData.SessionId, (int)_currentPlayerData.CurrentLap));
+        }
     }
 
     private void UpdateSessionType()
@@ -104,8 +111,11 @@ public class GameProcessor : IGameProcessor
 
     private void UpdateCurrentLapTimeInLapEventStore()
     {
-        SimHub.Logging.Current.Debug($"GameProcessor::UpdateCurrentLapTimeInLapEventStore(): Set current lap time on RaceEventHandler to {_currentGameData.NewData.CurrentLapTime}");
-        _raceEventHandler.SetCurrentLapTime(_currentGameData.NewData.CurrentLapTime);
+        if (_currentPlayerData?.CurrentLapTime != null)
+        {
+            SimHub.Logging.Current.Debug($"GameProcessor::UpdateCurrentLapTimeInLapEventStore(): Set current lap time on RaceEventHandler to {_currentPlayerData.CurrentLapTime}");
+            _raceEventHandler.SetCurrentLapTime((System.TimeSpan)_currentPlayerData.CurrentLapTime);
+        }
     }
 
     private void ProcessEntries(TestableOpponent[] entries)
@@ -124,6 +134,18 @@ public class GameProcessor : IGameProcessor
                 fastestSectorTimes
             );
         }
+    }
+
+    private TestableOpponent FindPlayer(TestableOpponent[] entries)
+    {
+        var result = entries.Where(o => o.IsPlayer == true);
+
+        if (result.Count() > 0)
+        {
+            return result.First();
+        }
+
+        throw new Exception($"GameProcessor::FindPlayer(): Could not find player data");
     }
 
     private TestableOpponent FindOldDataById(string id)

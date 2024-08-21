@@ -16,7 +16,15 @@ public class TestGameProcessor()
             NewData = new TestableStatusDataBase
             {
                 SessionName = "Race",
-                Opponents = []
+                Opponents = [
+                    new TestableOpponent
+                    {
+                        IsPlayer = true,
+                        CurrentLap = 2,
+                        CurrentSector = 3,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.4100000")
+                    }
+                ]
             }
         };
 
@@ -47,7 +55,15 @@ public class TestGameProcessor()
                 GameName = "Testgame",
                 TrackName = "Testtrack",
                 SessionName = "Qualifying",
-                Opponents = []
+                Opponents = [
+                    new TestableOpponent
+                    {
+                        IsPlayer = true,
+                        CurrentLap = 2,
+                        CurrentSector = 3,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.4100000")
+                    }
+                ]
             }
         };
 
@@ -109,9 +125,26 @@ public class TestGameProcessor()
                 GameName = "Testgame",
                 TrackName = "Testtrack",
                 SessionName = "Race",
-                CurrentLap = 2,
-                CurrentLapTime = TimeSpan.Parse("00:00:01.4100000"),
-                Opponents = []
+                Opponents = [
+                    new TestableOpponent
+                    {
+                        Position = 1,
+                        CarNumber = "107",
+                        IsPlayer = true,
+                        CurrentLap = 2,
+                        CurrentSector = 3,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.4100000")
+                    },
+                    new TestableOpponent
+                    {
+                        Position = 2,
+                        CarNumber = "108",
+                        IsPlayer = false,
+                        CurrentLap = 2,
+                        CurrentSector = 3,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.4120000")
+                    }
+                ]
             }
         };
 
@@ -119,63 +152,50 @@ public class TestGameProcessor()
         processor.Run(gameData);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Never());
 
-        // Old data is set, but the CurrentLap (1) is less than the CurrentLap in NewData (2)
+        // Old data is set, but the CurrentLap in the OldData (1) is less than the CurrentLap in NewData (2)
         gameData.OldData = new TestableStatusDataBase
         {
-            CurrentLap = 1,
-            CurrentLapTime = TimeSpan.Parse("00:01:31.3950000"),
+            Opponents = [
+                new TestableOpponent
+                {
+                    Position = 1,
+                    CarNumber = "108",
+                    IsPlayer = false,
+                    CurrentLap = 1,
+                    CurrentLapTime = TimeSpan.Parse("00:01:38.9990000")
+                },
+                new TestableOpponent
+                {
+                    Position = 2,
+                    CarNumber = "107",
+                    IsPlayer = true,
+                    CurrentLap = 1,
+                    CurrentLapTime = TimeSpan.Parse("00:01:31.3970000")
+                }
+            ]
         };
         processor.Run(gameData);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Never());
 
         // CurrentLap is the same, but the CurrentLapTime in NewData is greater than in OldData
-        gameData.OldData.CurrentLap = 2;
-        gameData.OldData.CurrentLapTime = TimeSpan.Parse("00:00:00.9850000");
+        gameData.OldData.Opponents[1].CurrentLap = 2;
+        gameData.OldData.Opponents[1].CurrentLapTime = TimeSpan.Parse("00:00:00.9850000");
         processor.Run(gameData);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Never());
 
         // Now the CurrentLapTime in OldData is greater than in NewData -> reload
-        gameData.OldData.CurrentLapTime = TimeSpan.Parse("00:00:04.9850000");
+        gameData.OldData.Opponents[1].CurrentLapTime = TimeSpan.Parse("00:00:04.9850000");
         processor.Run(gameData);
         SessionReloadEvent expected = new("d8248d7cce41618d2caea0ac66ae8870", 2);
         mockRaceEventHandler.Verify(m => m.AddEvent(expected), Times.Once());
 
         // Now the CurrentLap in OldData is greater than in NewData -> reload
-        gameData.NewData.CurrentLap = 5;
-        gameData.OldData.CurrentLap = 9;
+        gameData.NewData.Opponents[0].CurrentLap = 5;
+        gameData.OldData.Opponents[1].CurrentLap = 9;
         processor.Run(gameData);
         expected = new("d8248d7cce41618d2caea0ac66ae8870", 5);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Exactly(2));
         mockRaceEventHandler.Verify(m => m.AddEvent(expected), Times.Once());
-
-        // ACC has a strange behavior. After finishing a lap the current lap will incremented by one a few millseconds after the current lap time is resetted.
-        // This leads to a wrong SessionReload event, because the current lap number in old and new data are identical, but the current lap time in the old data is bigger than in the new data.
-        // e.g.:
-        // OldData: CurrentLap: 1 - CurrentLapTime: 0:00:00.120
-        // NewData: CurrentLap: 1 - CurrentLapTime: 0:02:41.356
-        gameData.NewData.CurrentLap = 5;
-        gameData.NewData.CurrentLapTime = TimeSpan.Parse("00:00:00.120");
-        gameData.OldData.CurrentLap = 5;
-        gameData.OldData.CurrentLapTime = TimeSpan.Parse("00:02:15.358");
-        processor.Run(gameData);
-
-        // no new session reload event
-        mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Exactly(2));
-
-        // now the threshold for the currentLapTime is exceeded -> should create SessionReload event
-        gameData.NewData.CurrentLap = 5;
-        gameData.NewData.CurrentLapTime = TimeSpan.Parse("00:00:00.201");
-        gameData.OldData.CurrentLap = 5;
-        gameData.OldData.CurrentLapTime = TimeSpan.Parse("00:02:15.358");
-        processor.Run(gameData);
-        mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Exactly(3));
-
-    }
-
-    [Fact]
-    public void TestShouldNotCreateReloadEventWhenCurrentLapTimeIsLessThan200Ms()
-    {
-
     }
 
     [Fact]
@@ -195,24 +215,36 @@ public class TestGameProcessor()
                 GameName = "Testgame",
                 TrackName = "Testtrack",
                 SessionName = "Race",
-                CurrentLap = 2,
-                CurrentLapTime = TimeSpan.Parse("00:00:01.4100000"),
-                Opponents = []
+                Opponents = [
+                new TestableOpponent
+                    {
+                        IsPlayer = true,
+                        CurrentLap = 2,
+                        CurrentSector = 3,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.4100000")
+                    }
+            ]
             },
             OldData = new TestableStatusDataBase
             {
                 GameName = "Testgame",
                 TrackName = "Testtrack",
                 SessionName = "Race",
-                CurrentLap = 2,
-                CurrentLapTime = TimeSpan.Parse("00:00:01.4100000"),
-                Opponents = []
+                Opponents = [
+                    new TestableOpponent
+                    {
+                        IsPlayer = true,
+                        CurrentLap = 2,
+                        CurrentSector = 3,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.3150000")
+                    }
+                ]
             }
         };
         processor.Run(gameData);
         mockRaceEventHandler.Verify(m => m.SetCurrentLapTime(TimeSpan.Parse("00:00:01.4100000")), Times.Once());
 
-        gameData.NewData.CurrentLapTime = TimeSpan.Parse("00:01:20.1930000");
+        gameData.NewData.Opponents[0].CurrentLapTime = TimeSpan.Parse("00:01:20.1930000");
         processor.Run(gameData);
         mockRaceEventHandler.Verify(m => m.SetCurrentLapTime(It.IsAny<TimeSpan>()), Times.Exactly(2));
         mockRaceEventHandler.Verify(m => m.SetCurrentLapTime(TimeSpan.Parse("00:01:20.1930000")), Times.Once());
@@ -239,23 +271,28 @@ public class TestGameProcessor()
                 CurrentLapTime = TimeSpan.Parse("00:00:01.4100000"),
                 Opponents = [
                     new TestableOpponent
-                    {
-                        CarNumber = "107",
-                        Position = 1,
-                        CurrentLap = 2
-                    },
-                    new TestableOpponent
-                    {
-                        CarNumber = "108",
-                        Position = 2,
-                        CurrentLap = 2
-                    },
-                    new TestableOpponent
-                    {
-                        CarNumber = "109",
-                        Position = 3,
-                        CurrentLap = 4
-                    }
+                        {
+                            CarNumber = "107",
+                            Position = 1,
+                            CurrentLap = 2,
+                            IsPlayer = true,
+                            CurrentSector = 3,
+                            CurrentLapTime = TimeSpan.Parse("00:00:01.3150000")
+                        },
+                        new TestableOpponent
+                        {
+                            CarNumber = "108",
+                            Position = 2,
+                            CurrentLap = 2,
+                            IsPlayer = false,
+                        },
+                        new TestableOpponent
+                        {
+                            CarNumber = "109",
+                            Position = 3,
+                            CurrentLap = 4,
+                            IsPlayer = false,
+                        }
                 ]
             },
             OldData = new TestableStatusDataBase
@@ -263,28 +300,31 @@ public class TestGameProcessor()
                 GameName = "Testgame",
                 TrackName = "Testtrack",
                 SessionName = "Race",
-                CurrentLap = 2,
-                CurrentLapTime = TimeSpan.Parse("00:00:00.7980000"),
                 Opponents = [
                     new TestableOpponent
-                    {
-                        CarNumber = "109",
-                        Position = 1,
-                        CurrentLap = 3,
-                    },
-                    new TestableOpponent
-                    {
-                        CarNumber = "110",
-                        Position = 2,
-                        CurrentLap = 2
-                    },
-                    new TestableOpponent
-                    {
-                        CarNumber = "107",
-                        Position = 3,
-                        CurrentLap = 1
-                    },
-                ]
+                        {
+                            CarNumber = "109",
+                            Position = 1,
+                            CurrentLap = 3,
+                            IsPlayer = false,
+                        },
+                        new TestableOpponent
+                        {
+                            CarNumber = "110",
+                            Position = 2,
+                            CurrentLap = 2,
+                            IsPlayer = false,
+                        },
+                        new TestableOpponent
+                        {
+                            CarNumber = "107",
+                            Position = 3,
+                            CurrentLap = 1,
+                            IsPlayer = true,
+                            CurrentSector = 3,
+                            CurrentLapTime = TimeSpan.Parse("00:00:01.3090000")
+                        },
+                    ]
             }
         };
         processor.Run(gameData);
@@ -361,16 +401,16 @@ public class TestGameProcessor()
                 GameName = "Testgame",
                 TrackName = "Testtrack",
                 SessionName = "Race",
-                CurrentLap = 2,
-                CurrentLapTime = TimeSpan.Parse("00:00:01.4100000"),
                 Opponents = [
                     new TestableOpponent
-                    {
-                        CarNumber = "107",
-                        Position = 1,
-                        CurrentLap = 2,
-                        CurrentSector = 1
-                    }
+                        {
+                            CarNumber = "107",
+                            Position = 1,
+                            CurrentLap = 2,
+                            CurrentSector = 1,
+                            IsPlayer = true,
+                            CurrentLapTime = TimeSpan.Parse("00:00:01.3150000")
+                        }
                 ]
             },
             OldData = new TestableStatusDataBase
@@ -378,16 +418,16 @@ public class TestGameProcessor()
                 GameName = "Testgame",
                 TrackName = "Testtrack",
                 SessionName = "Race",
-                CurrentLap = 2,
-                CurrentLapTime = TimeSpan.Parse("00:00:00.7980000"),
                 Opponents = [
                     new TestableOpponent
-                    {
-                        CarNumber = "107",
-                        Position = 3,
-                        CurrentLap = 2,
-                        CurrentSector = 3
-                    }
+                        {
+                            CarNumber = "107",
+                            Position = 3,
+                            CurrentLap = 2,
+                            CurrentSector = 3,
+                            IsPlayer = true,
+                            CurrentLapTime = TimeSpan.Parse("00:00:01.3170000")
+                        }
                 ]
             }
         };
@@ -406,5 +446,48 @@ public class TestGameProcessor()
             ),
             Times.Once()
         );
+    }
+
+    [Fact]
+    public void TestShouldThrowWhenPlayerDataCannotBeFound()
+    {
+        var mockPropertyManager = new Mock<IPropertyManager>();
+        var mockRaceEventHandler = new Mock<IRaceEventHandler>();
+        var mockRaceEntryProcessor = new Mock<IRaceEntryProcessor>();
+        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, "test");
+
+        var gameData = new TestableGameData
+        {
+            GameRunning = true,
+            GameName = "Testgame",
+            NewData = new TestableStatusDataBase
+            {
+                GameName = "Testgame",
+                TrackName = "Testtrack",
+                SessionName = "Race",
+                Opponents = [
+                    new TestableOpponent
+                    {
+                        CarNumber = "107",
+                        Position = 1,
+                        CurrentLap = 2,
+                        CurrentSector = 1,
+                        IsPlayer = false,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.3150000")
+                    },
+                    new TestableOpponent
+                    {
+                        CarNumber = "108",
+                        Position = 2,
+                        CurrentLap = 2,
+                        CurrentSector = 1,
+                        IsPlayer = false,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.3170000")
+                    }
+                ]
+            }
+        };
+
+        Assert.Throws<Exception>(() => processor.Run(gameData));
     }
 }

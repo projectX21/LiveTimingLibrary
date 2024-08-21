@@ -46,9 +46,15 @@ public class LiveTimingPluginProcessorTest
             NewData = new TestableStatusDataBase
             {
                 SessionName = "Race",
-                CurrentLap = 2,
-                CurrentLapTime = TimeSpan.Parse("00:00:01.4100000"),
-                Opponents = []
+                Opponents = [
+                    new TestableOpponent
+                    {
+                        IsPlayer = true,
+                        CurrentLap = 2,
+                        CurrentSector = 3,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.4100000"),
+                    }
+                ]
             },
             OldData = new TestableStatusDataBase()
         };
