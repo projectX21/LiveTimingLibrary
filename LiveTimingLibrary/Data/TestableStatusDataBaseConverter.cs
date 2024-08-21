@@ -13,7 +13,7 @@ public class TestableStatusDataBaseConverter
             SessionName = data.SessionTypeName,
             CurrentLap = data.CurrentLap,
             CurrentLapTime = data.CurrentLapTime,
-            Opponents = data.Opponents.Select(TestableOpponentConverter.FromOpponent).ToArray()
+            Opponents = (data.Opponents?.Count > 0 ? data.Opponents.Select(TestableOpponentConverter.FromOpponent) : new List<TestableOpponent>()).ToArray()
         };
     }
 }

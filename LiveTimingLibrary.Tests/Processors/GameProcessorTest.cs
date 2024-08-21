@@ -147,6 +147,35 @@ public class TestGameProcessor()
         expected = new("d8248d7cce41618d2caea0ac66ae8870", 5);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Exactly(2));
         mockRaceEventHandler.Verify(m => m.AddEvent(expected), Times.Once());
+
+        // ACC has a strange behavior. After finishing a lap the current lap will incremented by one a few millseconds after the current lap time is resetted.
+        // This leads to a wrong SessionReload event, because the current lap number in old and new data are identical, but the current lap time in the old data is bigger than in the new data.
+        // e.g.:
+        // OldData: CurrentLap: 1 - CurrentLapTime: 0:00:00.120
+        // NewData: CurrentLap: 1 - CurrentLapTime: 0:02:41.356
+        gameData.NewData.CurrentLap = 5;
+        gameData.NewData.CurrentLapTime = TimeSpan.Parse("00:00:00.120");
+        gameData.OldData.CurrentLap = 5;
+        gameData.OldData.CurrentLapTime = TimeSpan.Parse("00:02:15.358");
+        processor.Run(gameData);
+
+        // no new session reload event
+        mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Exactly(2));
+
+        // now the threshold for the currentLapTime is exceeded -> should create SessionReload event
+        gameData.NewData.CurrentLap = 5;
+        gameData.NewData.CurrentLapTime = TimeSpan.Parse("00:00:00.201");
+        gameData.OldData.CurrentLap = 5;
+        gameData.OldData.CurrentLapTime = TimeSpan.Parse("00:02:15.358");
+        processor.Run(gameData);
+        mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Exactly(3));
+
+    }
+
+    [Fact]
+    public void TestShouldNotCreateReloadEventWhenCurrentLapTimeIsLessThan200Ms()
+    {
+
     }
 
     [Fact]

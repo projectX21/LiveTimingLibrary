@@ -82,6 +82,9 @@ public class GameProcessor : IGameProcessor
                 _currentGameData.OldData.CurrentLap > _currentGameData.NewData.CurrentLap ||
                 (
                     _currentGameData.OldData.CurrentLap == _currentGameData.NewData.CurrentLap
+                    // in ACC the currentLapTime resets a few milliseconds before the currentLapTime is incremented by one
+                    // -> this lead to a sessionReloadEvent, because the lap number was identical, but the OldData currentLapTime was bigger than in the NewData
+                    && _currentGameData.NewData.CurrentLapTime.TotalMilliseconds > 200
                     && _currentGameData.OldData.CurrentLapTime.TotalSeconds > _currentGameData.NewData.CurrentLapTime.TotalSeconds
                 )
             )
