@@ -33,12 +33,12 @@ public class GapCalculator
 
         if (diffLaps > 0)
         {
-            return $"+{diffLaps}L";
+            return ToLapGap(diffLaps);
         }
         else
         {
             var gap = NormalizeGapToLeader(behind.GapToLeader) - NormalizeGapToLeader(inFront.GapToLeader);
-            return gap > 0.0 ? $"+{TimeSpanFormatter.Format(TimeSpan.FromSeconds(gap))}" : "";
+            return gap > 0.0 ? ToTimeGap(gap) : "";
         }
     }
 
@@ -53,7 +53,22 @@ public class GapCalculator
         }
 
         TimeSpan gap = ((TimeSpan)behindBestLap).Subtract((TimeSpan)inFrontBestLap);
-        return gap.Milliseconds > 0 ? $"+{TimeSpanFormatter.Format(gap)}" : "";
+        return gap.Milliseconds > 0 ? ToTimeGap(gap) : "";
+    }
+
+    public static string ToLapGap(int? gap)
+    {
+        return (gap != null) ? $"+{gap}L" : "";
+    }
+
+    public static string ToTimeGap(double? gap)
+    {
+        return (gap != null) ? $"+{TimeSpanFormatter.Format(TimeSpan.FromSeconds(gap ?? 0))}" : "";
+    }
+
+    public static string ToTimeGap(TimeSpan gap)
+    {
+        return $"+{TimeSpanFormatter.Format(gap)}";
     }
 
     public static bool IsFasterThan(TimeSpan? time1, TimeSpan? time2)

@@ -113,7 +113,7 @@ public class RaceEntryProcessor : IRaceEntryProcessor
         UpdateProperty(PropertyManagerConstants.CURRENT_LAP_NUMBER, _newEntryData.CurrentLap);
         UpdateProperty(PropertyManagerConstants.CURRENT_SECTOR, _newEntryData.CurrentSector);
         UpdateProperty(PropertyManagerConstants.GAP_TO_FIRST, GapCalculator.Calc(_sessionType, _newEntryData, _leaderData));
-        UpdateProperty(PropertyManagerConstants.GAP_TO_IN_FRONT, GapCalculator.Calc(_sessionType, _newEntryData, _inFrontData));
+        UpdateProperty(PropertyManagerConstants.GAP_TO_IN_FRONT, _newEntryData.GapToInFront != null ? GapCalculator.ToTimeGap(_newEntryData.GapToInFront) : GapCalculator.Calc(_sessionType, _newEntryData, _inFrontData));
         UpdateProperty(PropertyManagerConstants.TYRE_COMPOUND, _newEntryData.FrontTyreCompound);
         UpdateProperty(PropertyManagerConstants.FUEL_CAPACITY, _newEntryData.FuelCapacity);
         UpdateProperty(PropertyManagerConstants.FUEL_LOAD, _newEntryData.FuelLoad);

@@ -25,11 +25,13 @@ public class TestableGameDataConverter
         {
             if (result.OldData != null)
             {
+                RF2SpecificConvertions(result.OldData.Opponents, (originData as GameData<WrapV2>).GameOldData.Raw.Scoring.mVehicles);
                 RF2SpecificConvertions(result.OldData.Opponents, (originData as GameData<WrapV2>).GameOldData.Raw.telemetry.mVehicles);
             }
 
             if (result.NewData != null)
             {
+                RF2SpecificConvertions(result.NewData.Opponents, (originData as GameData<WrapV2>).GameNewData.Raw.Scoring.mVehicles);
                 RF2SpecificConvertions(result.NewData.Opponents, (originData as GameData<WrapV2>).GameNewData.Raw.telemetry.mVehicles);
             }
         }
@@ -66,6 +68,28 @@ public class TestableGameDataConverter
         foreach (var entry in entries)
         {
             entry.CarClass = carClass;
+        }
+
+        return entries;
+    }
+
+    private static TestableOpponent[] RF2SpecificConvertions(TestableOpponent[] entries, rF2VehicleScoring[] rF2Entries)
+    {
+        foreach (var entry in entries)
+        {
+            foreach (var rF2Entry in rF2Entries)
+            {
+                var rF2Name = new string(System.Text.Encoding.Default.GetString(rF2Entry.mVehicleName).Where(c => !char.IsControl(c)).ToArray());
+
+                if (rF2Name.Contains("#" + entry.CarNumber + " "))
+                {
+                    if (rF2Entry.mTimeBehindNext != 0.0)
+                    {
+                        entry.GapToInFront = rF2Entry.mTimeBehindNext;
+                        SimHub.Logging.Current.Info($"Car #{rF2Name} setted GapToInFront to: {entry.GapToInFront}");
+                    }
+                }
+            };
         }
 
         return entries;

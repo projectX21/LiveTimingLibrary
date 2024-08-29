@@ -148,52 +148,30 @@ public class TestGameProcessor()
             }
         };
 
-        // Old data is null -> no session reload
+        // Shouldn't do anything for the first Run() execution, because _lastCurrentLap and _lastCurrentLapTime are null initially
         processor.Run(gameData);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Never());
 
-        // Old data is set, but the CurrentLap in the OldData (1) is less than the CurrentLap in NewData (2)
-        gameData.OldData = new TestableStatusDataBase
-        {
-            Opponents = [
-                new TestableOpponent
-                {
-                    Position = 1,
-                    CarNumber = "108",
-                    IsPlayer = false,
-                    CurrentLap = 1,
-                    CurrentLapTime = TimeSpan.Parse("00:01:38.9990000")
-                },
-                new TestableOpponent
-                {
-                    Position = 2,
-                    CarNumber = "107",
-                    IsPlayer = true,
-                    CurrentLap = 1,
-                    CurrentLapTime = TimeSpan.Parse("00:01:31.3970000")
-                }
-            ]
-        };
+        // _lastCurrentLap (2) is less than the CurrentLap in NewData (3)
+        gameData.NewData.Opponents[0].CurrentLap = 3;
         processor.Run(gameData);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Never());
 
-        // CurrentLap is the same, but the CurrentLapTime in NewData is greater than in OldData
-        gameData.OldData.Opponents[1].CurrentLap = 2;
-        gameData.OldData.Opponents[1].CurrentLapTime = TimeSpan.Parse("00:00:00.9850000");
+        // CurrentLap is the same, but the CurrentLapTime in NewData is greater than in _lastCurrentLapTime
+        gameData.NewData.Opponents[0].CurrentLapTime = TimeSpan.Parse("00:00:04.4910000");
         processor.Run(gameData);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Never());
 
-        // Now the CurrentLapTime in OldData is greater than in NewData -> reload
-        gameData.OldData.Opponents[1].CurrentLapTime = TimeSpan.Parse("00:00:04.9850000");
+        // Now the CurrentLapTime in NewData is less than _lastCurrentLapTime -> reload
+        gameData.NewData.Opponents[0].CurrentLapTime = TimeSpan.Parse("00:00:02.5820000");
         processor.Run(gameData);
-        SessionReloadEvent expected = new("d8248d7cce41618d2caea0ac66ae8870", 2);
+        SessionReloadEvent expected = new("d8248d7cce41618d2caea0ac66ae8870", 3);
         mockRaceEventHandler.Verify(m => m.AddEvent(expected), Times.Once());
 
-        // Now the CurrentLap in OldData is greater than in NewData -> reload
-        gameData.NewData.Opponents[0].CurrentLap = 5;
-        gameData.OldData.Opponents[1].CurrentLap = 9;
+        // And finally the CurrentLap in NewData is less than _lastCurrentLap -> reload
+        gameData.NewData.Opponents[0].CurrentLap = 2;
         processor.Run(gameData);
-        expected = new("d8248d7cce41618d2caea0ac66ae8870", 5);
+        expected = new("d8248d7cce41618d2caea0ac66ae8870", 2);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Exactly(2));
         mockRaceEventHandler.Verify(m => m.AddEvent(expected), Times.Once());
     }

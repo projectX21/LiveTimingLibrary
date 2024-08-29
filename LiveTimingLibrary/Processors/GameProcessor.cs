@@ -20,6 +20,10 @@ public class GameProcessor : IGameProcessor
 
     private string _lastSessionId;
 
+    private int? _lastCurrentLap;
+
+    private TimeSpan? _lastCurrentLapTime;
+
     public GameProcessor(IPropertyManager propertyManager, IRaceEventHandler handler, IRaceEntryProcessor processor, string currentGameName)
     {
         _propertyManager = propertyManager;
@@ -64,6 +68,8 @@ public class GameProcessor : IGameProcessor
         }
 
         _lastSessionId = gameData.NewData.SessionId;
+        _lastCurrentLap = _currentPlayerData.CurrentLap;
+        _lastCurrentLapTime = _currentPlayerData.CurrentLapTime;
     }
 
     private bool HasSessionIdChanged()
@@ -82,14 +88,12 @@ public class GameProcessor : IGameProcessor
 
     private bool WasSessionReloaded()
     {
-        var oldData = FindOldDataById(_currentPlayerData.Id);
-
-        return oldData != null && _currentPlayerData != null &&
+        return _lastCurrentLap != null && _lastCurrentLapTime != null && _currentPlayerData != null &&
             (
-                oldData.CurrentLap > _currentPlayerData.CurrentLap ||
+                _lastCurrentLap > _currentPlayerData.CurrentLap ||
                 (
-                    oldData.CurrentLap == _currentPlayerData.CurrentLap
-                    && oldData.CurrentLapTime?.TotalSeconds > _currentPlayerData.CurrentLapTime?.TotalSeconds
+                    _lastCurrentLap == _currentPlayerData.CurrentLap
+                    && _lastCurrentLapTime?.TotalSeconds > _currentPlayerData.CurrentLapTime?.TotalSeconds
                 )
             )
         ;
@@ -166,7 +170,8 @@ public class GameProcessor : IGameProcessor
 
     private TestableOpponent NormalizeEntryData(TestableOpponent newData, TestableOpponent oldData)
     {
-        if (newData.CurrentLap == oldData?.CurrentLap && newData.CurrentSector < oldData?.CurrentSector)
+        if (newData.CurrentLap == oldData?.CurrentLap
+            && (newData.CurrentSector < oldData?.CurrentSector || newData.CurrentLapTime?.TotalSeconds < oldData?.CurrentLapTime?.TotalSeconds))
         {
             SimHub.Logging.Current.Info($"GameProcessor::NormalizeEntryData(): OldData is newer than NewData for entry with id: {newData.Id}");
             return oldData;

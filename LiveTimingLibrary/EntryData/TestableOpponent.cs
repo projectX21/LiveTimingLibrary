@@ -36,6 +36,8 @@ public class TestableOpponent
 
     public double? GapToLeader { get; set; }
 
+    public double? GapToInFront { get; set; }
+
     public TestableSectorTimes CurrentTimes { get; set; }
 
     public TestableSectorTimes LastTimes { get; set; }
@@ -145,6 +147,7 @@ public class TestableOpponent
         SimHub.Logging.Current.Info("CurrentSector:  " + CurrentSector);
         SimHub.Logging.Current.Info("CarNumber:      " + CarNumber);
         SimHub.Logging.Current.Info("GapToLeader:    " + GapToLeader);
+        SimHub.Logging.Current.Info("GapToInFront:   " + GapToInFront);
         SimHub.Logging.Current.Info("CL S1:          " + CurrentTimes.Sector1);
         SimHub.Logging.Current.Info("CL S2:          " + CurrentTimes.Sector2);
         SimHub.Logging.Current.Info("CL S3:          " + CurrentTimes.Sector3);
@@ -163,6 +166,7 @@ public class TestableOpponent
         SimHub.Logging.Current.Info("StartPosition:  " + StartPosition);
         SimHub.Logging.Current.Info("Fuel capacity:  " + FuelCapacity);
         SimHub.Logging.Current.Info("Fuel load:      " + FuelLoad);
+        SimHub.Logging.Current.Info("---------------------------");
     }
 
     public void LogShort()

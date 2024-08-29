@@ -1,7 +1,27 @@
-using Microsoft.VisualStudio.TestPlatform.Utilities;
-
 public class GapCalculatorTest
 {
+    [Fact]
+    public void TestLapGap()
+    {
+        Assert.Equal("", GapCalculator.ToLapGap(null));
+        Assert.Equal("+2L", GapCalculator.ToLapGap(2));
+    }
+
+    [Fact]
+    public void TestTimeGap()
+    {
+        // at first for double
+        Assert.Equal("", GapCalculator.ToTimeGap(null));
+        Assert.Equal("+0.885", GapCalculator.ToTimeGap(0.88578));
+        Assert.Equal("+10.531", GapCalculator.ToTimeGap(10.53192));
+        Assert.Equal("+1:04.303", GapCalculator.ToTimeGap(64.30397));
+
+        // now for TimeSpan
+        Assert.Equal("+0.885", GapCalculator.ToTimeGap(TimeSpan.FromSeconds(0.88578)));
+        Assert.Equal("+10.531", GapCalculator.ToTimeGap(TimeSpan.FromSeconds(10.53192)));
+        Assert.Equal("+1:04.303", GapCalculator.ToTimeGap(TimeSpan.FromSeconds(64.30397)));
+    }
+
     [Fact]
     public void TestGapInRace()
     {
