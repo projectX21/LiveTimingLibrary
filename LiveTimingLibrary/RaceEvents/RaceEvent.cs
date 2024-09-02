@@ -19,7 +19,7 @@ public abstract class RaceEvent
 
     public RaceEvent(string sessionId, RaceEventType type, TimeSpan elapsedTime)
     {
-        SessionId = SessionId;
+        SessionId = sessionId;
         Type = type;
         ElapsedTime = elapsedTime;
     }

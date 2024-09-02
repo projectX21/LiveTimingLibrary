@@ -175,6 +175,6 @@ public class TestableOpponent
         SimHub.Logging.Current.Info("Position:       " + Position);
         SimHub.Logging.Current.Info("CurrentLap:     " + CurrentLap);
         SimHub.Logging.Current.Info("GapToLeader:    " + GapToLeader);
-        SimHub.Logging.Current.Info("----------------------------------");
+        SimHub.Logging.Current.Info("-");
     }
 }

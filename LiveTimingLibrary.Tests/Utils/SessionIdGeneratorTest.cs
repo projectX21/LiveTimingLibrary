@@ -6,10 +6,10 @@ public class SessionIdGeneratorTest
         var data = new TestableStatusDataBase
         {
             GameName = "Testgame",
-            TrackName = "Testtrack",
+            TrackName = "Testtrack New",
             SessionName = "Race"
         };
 
-        Assert.Equal("d8248d7cce41618d2caea0ac66ae8870", SessionIdGenerator.Generate(data));
+        Assert.Equal("testgame_testtrack_new_race", SessionIdGenerator.Generate(data));
     }
 }

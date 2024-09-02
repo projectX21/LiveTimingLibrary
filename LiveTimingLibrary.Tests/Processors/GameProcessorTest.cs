@@ -16,6 +16,7 @@ public class TestGameProcessor()
             NewData = new TestableStatusDataBase
             {
                 SessionName = "Race",
+                TrackName = "Testtrack",
                 Opponents = [
                     new TestableOpponent
                     {
@@ -85,27 +86,27 @@ public class TestGameProcessor()
         processor.Run(gameData);
         mockPropertyManager.Verify(m => m.ResetAll(), Times.Once());
         mockRaceEventHandler.Verify(m => m.ReinitPitEventStore(It.IsAny<string>()), Times.Once());
-        mockRaceEventHandler.Verify(m => m.ReinitPitEventStore("d8248d7cce41618d2caea0ac66ae8870"), Times.Once());
+        mockRaceEventHandler.Verify(m => m.ReinitPitEventStore("testgame_testtrack_race"), Times.Once());
         mockRaceEventHandler.Verify(m => m.ReinitPlayerFinishedLapEventStore(It.IsAny<string>()), Times.Once());
-        mockRaceEventHandler.Verify(m => m.ReinitPlayerFinishedLapEventStore("d8248d7cce41618d2caea0ac66ae8870"), Times.Once());
+        mockRaceEventHandler.Verify(m => m.ReinitPlayerFinishedLapEventStore("testgame_testtrack_race"), Times.Once());
 
         // new TrackName -> -> should handle session change again
         gameData.NewData.TrackName = "Testtrack new";
         processor.Run(gameData);
         mockPropertyManager.Verify(m => m.ResetAll(), Times.Exactly(2));
         mockRaceEventHandler.Verify(m => m.ReinitPitEventStore(It.IsAny<string>()), Times.Exactly(2));
-        mockRaceEventHandler.Verify(m => m.ReinitPitEventStore("f224e61defd9deeb6564d121c8ef32de"), Times.Once());
+        mockRaceEventHandler.Verify(m => m.ReinitPitEventStore("testgame_testtrack_new_race"), Times.Once());
         mockRaceEventHandler.Verify(m => m.ReinitPlayerFinishedLapEventStore(It.IsAny<string>()), Times.Exactly(2));
-        mockRaceEventHandler.Verify(m => m.ReinitPlayerFinishedLapEventStore("f224e61defd9deeb6564d121c8ef32de"), Times.Once());
+        mockRaceEventHandler.Verify(m => m.ReinitPlayerFinishedLapEventStore("testgame_testtrack_new_race"), Times.Once());
 
         // new GameName -> -> should handle session change again
         gameData.NewData.GameName = "Testgame new";
         processor.Run(gameData);
         mockPropertyManager.Verify(m => m.ResetAll(), Times.Exactly(3));
         mockRaceEventHandler.Verify(m => m.ReinitPitEventStore(It.IsAny<string>()), Times.Exactly(3));
-        mockRaceEventHandler.Verify(m => m.ReinitPitEventStore("efb68506f6b670aa816fa1bcc3cf9f60"), Times.Once());
+        mockRaceEventHandler.Verify(m => m.ReinitPitEventStore("testgame_new_testtrack_new_race"), Times.Once());
         mockRaceEventHandler.Verify(m => m.ReinitPlayerFinishedLapEventStore(It.IsAny<string>()), Times.Exactly(3));
-        mockRaceEventHandler.Verify(m => m.ReinitPlayerFinishedLapEventStore("efb68506f6b670aa816fa1bcc3cf9f60"), Times.Once());
+        mockRaceEventHandler.Verify(m => m.ReinitPlayerFinishedLapEventStore("testgame_new_testtrack_new_race"), Times.Once());
     }
 
     [Fact]
@@ -165,13 +166,13 @@ public class TestGameProcessor()
         // Now the CurrentLapTime in NewData is less than _lastCurrentLapTime -> reload
         gameData.NewData.Opponents[0].CurrentLapTime = TimeSpan.Parse("00:00:02.5820000");
         processor.Run(gameData);
-        SessionReloadEvent expected = new("d8248d7cce41618d2caea0ac66ae8870", 3);
+        SessionReloadEvent expected = new("testgame_testtrack_race", 3);
         mockRaceEventHandler.Verify(m => m.AddEvent(expected), Times.Once());
 
         // And finally the CurrentLap in NewData is less than _lastCurrentLap -> reload
         gameData.NewData.Opponents[0].CurrentLap = 2;
         processor.Run(gameData);
-        expected = new("d8248d7cce41618d2caea0ac66ae8870", 2);
+        expected = new("testgame_testtrack_race", 2);
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<SessionReloadEvent>()), Times.Exactly(2));
         mockRaceEventHandler.Verify(m => m.AddEvent(expected), Times.Once());
     }
@@ -308,7 +309,7 @@ public class TestGameProcessor()
         processor.Run(gameData);
         mockRaceEntryProcessor.Verify(
             m => m.Process(
-                "d8248d7cce41618d2caea0ac66ae8870",
+                "testgame_testtrack_race",
                 SessionType.Race,
                 It.IsAny<TestableOpponent>(),
                 It.IsAny<TestableOpponent>(),
@@ -322,7 +323,7 @@ public class TestGameProcessor()
         // CarNumber 107
         mockRaceEntryProcessor.Verify(
             m => m.Process(
-                "d8248d7cce41618d2caea0ac66ae8870",
+                "testgame_testtrack_race",
                 SessionType.Race,
                 gameData.NewData.Opponents[0],
                 gameData.OldData.Opponents[2],
@@ -336,7 +337,7 @@ public class TestGameProcessor()
         // CarNumber 108
         mockRaceEntryProcessor.Verify(
             m => m.Process(
-                "d8248d7cce41618d2caea0ac66ae8870",
+                "testgame_testtrack_race",
                 SessionType.Race,
                 gameData.NewData.Opponents[1],
                 null,
@@ -350,7 +351,7 @@ public class TestGameProcessor()
         // CarNumber 109
         mockRaceEntryProcessor.Verify(
             m => m.Process(
-                "d8248d7cce41618d2caea0ac66ae8870",
+                "testgame_testtrack_race",
                 SessionType.Race,
                 gameData.NewData.Opponents[2],
                 gameData.OldData.Opponents[0],
@@ -414,7 +415,7 @@ public class TestGameProcessor()
         // Should use OldData as NewData, when the CurrentLap/CurrentSector in OldData is higher than in NewData
         mockRaceEntryProcessor.Verify(
             m => m.Process(
-                "d8248d7cce41618d2caea0ac66ae8870",
+                "testgame_testtrack_race",
                 SessionType.Race,
                 gameData.OldData.Opponents[0],
                 gameData.OldData.Opponents[0],

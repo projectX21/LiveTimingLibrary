@@ -34,6 +34,7 @@ public class LiveTimingPluginProcessor
             GameProcessor = new GameProcessor(_propertyManager, _raceEventHandler, _raceEntryProcessor, gameData.GameName);
         }
 
+        SimHub.Logging.Current.Info("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
         GameProcessor.Run(gameData);
     }
 }

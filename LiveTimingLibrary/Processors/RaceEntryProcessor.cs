@@ -34,6 +34,7 @@ public class RaceEntryProcessor : IRaceEntryProcessor
         IFastestFragmentTimesStore timesStore
     )
     {
+        newData.LogShort();
         _sessionId = sessionId;
         _sessionType = sessionType;
         _newEntryData = newData;

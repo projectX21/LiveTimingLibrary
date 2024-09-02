@@ -103,16 +103,16 @@ public class PlayerFinishedLapEventStoreTest
 
     public static PlayerFinishedLapEvent GetFirstLap()
     {
-        return new PlayerFinishedLapEvent("d8248d7cce41618d2caea0ac66ae8870", 1, TimeSpan.Parse("00:01:45.2910000"), TimeSpan.Parse("00:01:45.2910000"));
+        return new PlayerFinishedLapEvent("testgame_testtrack_race", 1, TimeSpan.Parse("00:01:45.2910000"), TimeSpan.Parse("00:01:45.2910000"));
     }
 
     public static PlayerFinishedLapEvent GetSecondLap()
     {
-        return new PlayerFinishedLapEvent("d8248d7cce41618d2caea0ac66ae8870", 2, TimeSpan.Parse("00:01:41.6680000"), TimeSpan.Parse("00:03:26.9590000"));
+        return new PlayerFinishedLapEvent("testgame_testtrack_race", 2, TimeSpan.Parse("00:01:41.6680000"), TimeSpan.Parse("00:03:26.9590000"));
     }
 
     public static PlayerFinishedLapEvent GetThirdLap()
     {
-        return new PlayerFinishedLapEvent("d8248d7cce41618d2caea0ac66ae8870", 3, TimeSpan.Parse("00:01:41.1140000"), TimeSpan.Parse("00:05:08.0730000"));
+        return new PlayerFinishedLapEvent("testgame_testtrack_race", 3, TimeSpan.Parse("00:01:41.1140000"), TimeSpan.Parse("00:05:08.0730000"));
     }
 }

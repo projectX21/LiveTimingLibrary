@@ -45,7 +45,14 @@ public class PitEventStore : IPitEventStore
             // a PitIn event is only addable when there aren't any pit events yet, or the last one in the current data is a PitOut event
             if (entryEvents.Count > 0 && entryEvents[entryEvents.Count - 1].Type != RaceEventType.PitOut)
             {
-                throw new Exception($"PitEventStore::ValidateNewEvent(): PitIn event is not addable: {pitEvent}! Current size of pit events: {entryEvents.Count}, last event type: {RaceEventTypeConverter.FromEnum(entryEvents[entryEvents.Count - 1].Type)}");
+                var message = $"PitEventStore::ValidateNewEvent(): PitIn event is not addable: {pitEvent}! Current size of pit events: {entryEvents.Count}";
+
+                if (entryEvents.Count > 0)
+                {
+                    message += $", last event type: {RaceEventTypeConverter.FromEnum(entryEvents[entryEvents.Count - 1].Type)}";
+                }
+
+                throw new Exception(message);
             }
         }
         else if (pitEvent.Type == RaceEventType.PitOut)
@@ -54,7 +61,14 @@ public class PitEventStore : IPitEventStore
 
             if (entryEvents.Count == 0 || entryEvents[entryEvents.Count - 1].Type != RaceEventType.PitIn)
             {
-                throw new Exception($"PitEventStore::ValidateNewEvent(): PitOut event is not addable: {pitEvent}! Current size of pit events: {entryEvents.Count}, last event type: {RaceEventTypeConverter.FromEnum(entryEvents[entryEvents.Count - 1].Type)}");
+                var message = $"PitEventStore::ValidateNewEvent(): PitOut event is not addable: {pitEvent}! Current size of pit events: {entryEvents.Count}";
+
+                if (entryEvents.Count > 0)
+                {
+                    message += $", last event type: {RaceEventTypeConverter.FromEnum(entryEvents[entryEvents.Count - 1].Type)}";
+                }
+
+                throw new Exception(message);
             }
 
         }

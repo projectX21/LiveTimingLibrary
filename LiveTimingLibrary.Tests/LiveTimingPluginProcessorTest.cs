@@ -46,6 +46,7 @@ public class LiveTimingPluginProcessorTest
             NewData = new TestableStatusDataBase
             {
                 SessionName = "Race",
+                TrackName = "Testtrack",
                 Opponents = [
                     new TestableOpponent
                     {

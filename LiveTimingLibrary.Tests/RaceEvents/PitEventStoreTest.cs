@@ -65,21 +65,21 @@ public class PitEventStoreTest
 
     public static PitEvent GetFirstPitInEvent()
     {
-        return new PitEvent("d8248d7cce41618d2caea0ac66ae8870", RaceEventType.PitIn, "107", 10, TimeSpan.Parse("00:01:40.1090000"));
+        return new PitEvent("testgame_testtrack_race", RaceEventType.PitIn, "107", 10, TimeSpan.Parse("00:01:40.1090000"));
     }
 
     public static PitEvent GetFirstPitOutEvent()
     {
-        return new PitEvent("d8248d7cce41618d2caea0ac66ae8870", RaceEventType.PitOut, "107", 11, TimeSpan.Parse("00:02:17.6010000"));
+        return new PitEvent("testgame_testtrack_race", RaceEventType.PitOut, "107", 11, TimeSpan.Parse("00:02:17.6010000"));
     }
 
     public static PitEvent GetSecondPitInEvent()
     {
-        return new PitEvent("d8248d7cce41618d2caea0ac66ae8870", RaceEventType.PitIn, "107", 27, TimeSpan.Parse("00:47:19.1570000"));
+        return new PitEvent("testgame_testtrack_race", RaceEventType.PitIn, "107", 27, TimeSpan.Parse("00:47:19.1570000"));
     }
 
     public static PitEvent GetSecondPitOutEvent()
     {
-        return new PitEvent("d8248d7cce41618d2caea0ac66ae8870", RaceEventType.PitOut, "107", 28, TimeSpan.Parse("00:49:01.8580000"));
+        return new PitEvent("testgame_testtrack_race", RaceEventType.PitOut, "107", 28, TimeSpan.Parse("00:49:01.8580000"));
     }
 }
