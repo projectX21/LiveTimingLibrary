@@ -228,7 +228,7 @@ public class RaceEntryProcessor : IRaceEntryProcessor
             return null;
         }
 
-        return _entryProgressStore.UseCustomGapCalculation() ? _entryProgressStore.CalcGap(_leaderData.Id, _newEntryData.Id) : GapCalculator.Calc(_sessionType, _newEntryData, _leaderData);
+        return _entryProgressStore.UseCustomGapCalculation() && _sessionType == SessionType.Race ? _entryProgressStore.CalcGap(_leaderData.Id, _newEntryData.Id) : GapCalculator.Calc(_sessionType, _newEntryData, _leaderData);
     }
 
     private string CalcGapToInFront()
@@ -238,7 +238,7 @@ public class RaceEntryProcessor : IRaceEntryProcessor
             return null;
         }
 
-        return _entryProgressStore.UseCustomGapCalculation() ? _entryProgressStore.CalcGap(_inFrontData.Id, _newEntryData.Id) : _newEntryData.GapToInFront != null ? GapCalculator.ToTimeGap(_newEntryData.GapToInFront) : GapCalculator.Calc(_sessionType, _newEntryData, _inFrontData);
+        return _entryProgressStore.UseCustomGapCalculation() && _sessionType == SessionType.Race ? _entryProgressStore.CalcGap(_inFrontData.Id, _newEntryData.Id) : _newEntryData.GapToInFront != null ? GapCalculator.ToTimeGap(_newEntryData.GapToInFront) : GapCalculator.Calc(_sessionType, _newEntryData, _inFrontData);
     }
 
 }

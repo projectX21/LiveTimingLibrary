@@ -496,10 +496,6 @@ public class TestGameProcessor()
         var mockEntryProgressStore = new Mock<IEntryProgressStore>();
         var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, mockEntryProgressStore.Object, "test");
 
-        mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(true);
-        mockEntryProgressStore.Setup(m => m.GetEntryIdsSortedByProgress()).Returns(["107", "110", "108", "109"]);
-        mockRaceEventHandler.Setup(m => m.GetElapsedSessionTime()).Returns(TimeSpan.Parse("00:04:46.1090000"));
-
         var gameData = new TestableGameData
         {
             GameRunning = true,
@@ -508,7 +504,7 @@ public class TestGameProcessor()
             {
                 GameName = "Testgame",
                 TrackName = "Testtrack",
-                SessionName = "Race",
+                SessionName = "Qualifying",
                 Opponents = [
                     new TestableOpponent
                     {
@@ -553,6 +549,24 @@ public class TestGameProcessor()
                 ]
             }
         };
+
+        // Shouldn't fill custom progress store when session type is not 'Race'
+        mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(true);
+        processor.Run(gameData);
+        mockEntryProgressStore.Verify(m => m.AddIfNotAlreadyExists(It.IsAny<EntryProgress>()), Times.Never());
+
+        // Shouldn't fill custom progress store when it's disabled...
+        gameData.NewData.SessionName = "Race";
+        mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(false);
+        processor.Run(gameData);
+        processor.Run(gameData); // we have to call it twice, because the first time only the session id change will be handled
+        mockEntryProgressStore.Verify(m => m.AddIfNotAlreadyExists(It.IsAny<EntryProgress>()), Times.Never());
+
+        // Now it should be used
+        mockRaceEntryProcessor.Invocations.Clear();
+        mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(true);
+        mockEntryProgressStore.Setup(m => m.GetEntryIdsSortedByProgress()).Returns(["107", "110", "108", "109"]);
+        mockRaceEventHandler.Setup(m => m.GetElapsedSessionTime()).Returns(TimeSpan.Parse("00:04:46.1090000"));
 
         processor.Run(gameData);
         mockEntryProgressStore.Verify(m => m.AddIfNotAlreadyExists(It.IsAny<EntryProgress>()), Times.Exactly(4));

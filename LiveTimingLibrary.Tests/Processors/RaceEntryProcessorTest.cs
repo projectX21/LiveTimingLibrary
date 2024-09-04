@@ -227,13 +227,16 @@ public class RaceEntryProcessorTest
             CurrentLap = 2,
             CurrentTimes = new TestableSectorTimes(),
             LastTimes = new TestableSectorTimes(),
-            BestTimes = new TestableSectorTimes(),
+            BestTimes = new TestableSectorTimes
+            {
+                FullLap = TimeSpan.Parse("00:01:20.3150000")
+            },
             CurrentSector = 3,
             TrackPositionPercent = 0.901,
             GapToLeader = 17.395,
             FrontTyreCompound = "Soft",
             FuelCapacity = 50.209,
-            FuelLoad = 30.131
+            FuelLoad = 30.131,
         };
 
         var leaderData = new TestableOpponent
@@ -243,7 +246,11 @@ public class RaceEntryProcessorTest
             CurrentLap = 2,
             CurrentSector = 3,
             TrackPositionPercent = 0.940,
-            GapToLeader = null
+            GapToLeader = null,
+            BestTimes = new TestableSectorTimes
+            {
+                FullLap = TimeSpan.Parse("00:01:19.1520000")
+            },
         };
 
         var inFrontData = new TestableOpponent
@@ -253,23 +260,33 @@ public class RaceEntryProcessorTest
             CurrentLap = 2,
             CurrentSector = 3,
             TrackPositionPercent = 0.927,
-            GapToLeader = 10.985
+            GapToLeader = 10.985,
+            BestTimes = new TestableSectorTimes
+            {
+                FullLap = TimeSpan.Parse("00:01:20.2580000")
+            },
         };
 
-        // Should calculate gaps by GapToLeader property when EntryProgressStore.UseCustomGapCalculation is false
+        // Should calculate gaps by GapToLeader property when EntryProgressStore.UseCustomGapCalculation is false...
         mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(false);
         processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, null, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, mockEntryProgressStore.Object);
         mockPropertyManager.Verify(m => m.Add(6, "GapToFirst", "+17.395"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "GapToInFront", "+6.410"), Times.Once());
+        mockPropertyManager.Invocations.Clear();
+
+        // ... or session type is not 'Race'
+        mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(true);
+        processor.Process("testgame_testtrack_qualifying", SessionType.Qualifying, 6, newEntryData, null, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, mockEntryProgressStore.Object);
+        mockPropertyManager.Verify(m => m.Add(6, "GapToFirst", "+1.163"), Times.Once());
+        mockPropertyManager.Verify(m => m.Add(6, "GapToInFront", "+0.057"), Times.Once());
+        mockPropertyManager.Invocations.Clear();
 
         // Now calculate gaps by custom logic
         mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(true);
         mockEntryProgressStore.Setup(m => m.CalcGap("108", "107")).Returns("+2L");
         mockEntryProgressStore.Setup(m => m.CalcGap("109", "107")).Returns("+10.391");
         processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, null, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, mockEntryProgressStore.Object);
-        mockPropertyManager.Verify(m => m.Add(6, "GapToFirst", It.IsAny<string>()), Times.Exactly(2));
         mockPropertyManager.Verify(m => m.Add(6, "GapToFirst", "+2L"), Times.Once());
-        mockPropertyManager.Verify(m => m.Add(6, "GapToInFront", It.IsAny<string>()), Times.Exactly(2));
         mockPropertyManager.Verify(m => m.Add(6, "GapToInFront", "+10.391"), Times.Once());
     }
 
