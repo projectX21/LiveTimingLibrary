@@ -72,7 +72,10 @@
     <Compile Include="Data\TestableStatusDataBaseConverter.cs" />
 
     <Compile Include="EntryData\EntryPitData.cs" />
+    <Compile Include="EntryData\EntryProgress.cs" />
+    <Compile Include="EntryData\EntryProgressStore.cs" />
     <Compile Include="EntryData\FastestFragmentTimesStore.cs" />
+    <Compile Include="EntryData\IEntryProgressStore.cs" />
     <Compile Include="EntryData\IFastestFragmentTimesStore.cs" />
     <Compile Include="EntryData\IOpponent.cs" />
     <Compile Include="EntryData\ISectorTimes.cs" />

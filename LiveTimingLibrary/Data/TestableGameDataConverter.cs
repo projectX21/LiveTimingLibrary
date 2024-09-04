@@ -46,7 +46,6 @@ public class TestableGameDataConverter
 
             if (result.NewData != null)
             {
-                AccTest(result.NewData.Opponents, (originData as GameData<ACCRawData>).GameNewData.Raw.Cars.Select(c => c.Value).ToArray());
                 SetCarClass(result.NewData.Opponents, "GT3");
             }
         }
@@ -115,16 +114,5 @@ public class TestableGameDataConverter
         }
 
         return entries;
-    }
-
-    private static void AccTest(TestableOpponent[] entries, ksBroadcastingNetwork.Structs.RealtimeCarUpdate[] accEntries)
-    {
-        foreach (var accEntry in accEntries)
-        {
-            SimHub.Logging.Current.Info($"#:          {accEntry.CarEntry.RaceNumber}");
-            SimHub.Logging.Current.Info($"Delta:      {accEntry.Delta}");
-            SimHub.Logging.Current.Info($"Gap Leader: {accEntry.GapLeaderTime}");
-            SimHub.Logging.Current.Info($"Gap Front:  {accEntry.GapFrontTime}");
-        }
     }
 }

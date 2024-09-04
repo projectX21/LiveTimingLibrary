@@ -10,6 +10,8 @@ public interface IRaceEventHandler
 
     void SetCurrentLapTime(TimeSpan currentLapTime);
 
+    TimeSpan GetElapsedSessionTime();
+
     void ReinitPitEventStore(string sessionId);
 
     void ReinitPlayerFinishedLapEventStore(string sessionId);

@@ -74,4 +74,17 @@ public class RaceEventHandlerTest
         mockPlayerFinishedLapEventStore.Verify(m => m.Add(PlayerFinishedLapEventStoreTest.GetFirstLap()), Times.Once());
         mockPlayerFinishedLapEventStore.Verify(m => m.Add(PlayerFinishedLapEventStoreTest.GetSecondLap()), Times.Once());
     }
+
+    [Fact]
+    public void TestGetElapsedSessionTime()
+    {
+        var mockRecoveryFile = new Mock<IRaceEventRecoveryFile>();
+        var mockPitEventStore = new Mock<IPitEventStore>();
+
+        var mockPlayerFinishedLapEventStore = new Mock<IPlayerFinishedLapEventStore>();
+        mockPlayerFinishedLapEventStore.Setup(m => m.CalcTotalElapsedTimeWithCurrentLapTime()).Returns(TimeSpan.Parse("01:39:10.4910000"));
+
+        var handler = new RaceEventHandler(mockRecoveryFile.Object, mockPitEventStore.Object, mockPlayerFinishedLapEventStore.Object);
+        Assert.Equal(TimeSpan.Parse("01:39:10.4910000"), handler.GetElapsedSessionTime());
+    }
 }

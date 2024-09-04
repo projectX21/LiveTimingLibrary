@@ -12,6 +12,10 @@ public class RaceEntryProcessor : IRaceEntryProcessor
 
     private IFastestFragmentTimesStore _fastestFragmentTimesStore;
 
+    private IEntryProgressStore _entryProgressStore;
+
+    private int _entryPos;
+
     private TestableOpponent _newEntryData;
 
     private TestableOpponent _oldEntryData;
@@ -29,19 +33,21 @@ public class RaceEntryProcessor : IRaceEntryProcessor
 
     public void Process(
         string sessionId, SessionType sessionType,
-        TestableOpponent newData, TestableOpponent oldData,
+        int entryPos, TestableOpponent newData, TestableOpponent oldData,
         TestableOpponent leaderData, TestableOpponent inFrontData,
-        IFastestFragmentTimesStore timesStore
+        IFastestFragmentTimesStore timesStore,
+        IEntryProgressStore entryProgressStore
     )
     {
-        newData.LogShort();
         _sessionId = sessionId;
         _sessionType = sessionType;
+        _entryPos = entryPos;
         _newEntryData = newData;
         _oldEntryData = oldData;
         _leaderData = leaderData;
         _inFrontData = inFrontData;
         _fastestFragmentTimesStore = timesStore;
+        _entryProgressStore = entryProgressStore;
 
         if (_newEntryData.IsPlayer)
         {
@@ -110,11 +116,11 @@ public class RaceEntryProcessor : IRaceEntryProcessor
         UpdateProperty(PropertyManagerConstants.TEAM_NAME, _newEntryData.TeamName);
         UpdateProperty(PropertyManagerConstants.CAR_NAME, _newEntryData.CarName);
         UpdateProperty(PropertyManagerConstants.CAR_CLASS, _newEntryData.CarClass);
-        UpdateProperty(PropertyManagerConstants.POSITION, _newEntryData.Position);
+        UpdateProperty(PropertyManagerConstants.POSITION, _entryPos);
         UpdateProperty(PropertyManagerConstants.CURRENT_LAP_NUMBER, _newEntryData.CurrentLap);
         UpdateProperty(PropertyManagerConstants.CURRENT_SECTOR, _newEntryData.CurrentSector);
-        UpdateProperty(PropertyManagerConstants.GAP_TO_FIRST, GapCalculator.Calc(_sessionType, _newEntryData, _leaderData));
-        UpdateProperty(PropertyManagerConstants.GAP_TO_IN_FRONT, _newEntryData.GapToInFront != null ? GapCalculator.ToTimeGap(_newEntryData.GapToInFront) : GapCalculator.Calc(_sessionType, _newEntryData, _inFrontData));
+        UpdateProperty(PropertyManagerConstants.GAP_TO_FIRST, CalcCapToLeader());
+        UpdateProperty(PropertyManagerConstants.GAP_TO_IN_FRONT, CalcGapToInFront());
         UpdateProperty(PropertyManagerConstants.TYRE_COMPOUND, _newEntryData.FrontTyreCompound);
         UpdateProperty(PropertyManagerConstants.FUEL_CAPACITY, _newEntryData.FuelCapacity);
         UpdateProperty(PropertyManagerConstants.FUEL_LOAD, _newEntryData.FuelLoad);
@@ -214,4 +220,25 @@ public class RaceEntryProcessor : IRaceEntryProcessor
     {
         _propertyManager.Add(_newEntryData.Position, key, value);
     }
+
+    private string CalcCapToLeader()
+    {
+        if (_leaderData == null)
+        {
+            return null;
+        }
+
+        return _entryProgressStore.UseCustomGapCalculation() ? _entryProgressStore.CalcGap(_leaderData.Id, _newEntryData.Id) : GapCalculator.Calc(_sessionType, _newEntryData, _leaderData);
+    }
+
+    private string CalcGapToInFront()
+    {
+        if (_inFrontData == null)
+        {
+            return null;
+        }
+
+        return _entryProgressStore.UseCustomGapCalculation() ? _entryProgressStore.CalcGap(_inFrontData.Id, _newEntryData.Id) : _newEntryData.GapToInFront != null ? GapCalculator.ToTimeGap(_newEntryData.GapToInFront) : GapCalculator.Calc(_sessionType, _newEntryData, _inFrontData);
+    }
+
 }

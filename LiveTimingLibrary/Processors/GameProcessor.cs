@@ -12,6 +12,8 @@ public class GameProcessor : IGameProcessor
 
     protected readonly IRaceEntryProcessor _raceEntryProcessor;
 
+    protected readonly IEntryProgressStore _entryProgressStore;
+
     protected TestableGameData _currentGameData;
 
     protected TestableOpponent _currentPlayerData;
@@ -24,12 +26,13 @@ public class GameProcessor : IGameProcessor
 
     private TimeSpan? _lastCurrentLapTime;
 
-    public GameProcessor(IPropertyManager propertyManager, IRaceEventHandler handler, IRaceEntryProcessor processor, string currentGameName)
+    public GameProcessor(IPropertyManager propertyManager, IRaceEventHandler handler, IRaceEntryProcessor processor, IEntryProgressStore progressStore, string currentGameName)
     {
         _propertyManager = propertyManager;
         _raceEventHandler = handler;
         _raceEntryProcessor = processor;
         CurrentGameName = currentGameName;
+        _entryProgressStore = progressStore;
     }
 
     public virtual TestableOpponent[] GetEntries()
@@ -126,16 +129,26 @@ public class GameProcessor : IGameProcessor
     {
         var fastestSectorTimes = new FastestFragmentTimesStore(entries);
 
+
+        if (_sessionType == SessionType.Race && _entryProgressStore.UseCustomGapCalculation())
+        {
+            entries = PrepareCustomScoring(entries);
+        }
+
         for (var i = 0; i < entries.Length; i++)
         {
+            SimHub.Logging.Current.Debug($"Process position: {i + 1}: {_entryProgressStore.GetLastEntryProgress(entries[i].Id)}, native position: {entries[i].Position}, gap to leader: {entries[i].GapToLeader}");
+
             _raceEntryProcessor.Process(
                 _currentGameData.NewData.SessionId,
                 _sessionType,
+                i + 1,
                 entries[i],
                 FindOldDataById(entries[i].Id),
                 i > 0 ? entries[0] : null,
                 i > 0 ? entries[i - 1] : null,
-                fastestSectorTimes
+                fastestSectorTimes,
+                _entryProgressStore
             );
         }
     }
@@ -164,7 +177,7 @@ public class GameProcessor : IGameProcessor
             }
         }
 
-        SimHub.Logging.Current.Info($"GameProcessor::FindOldDataById(): Could not find OldData for entry with id: {id}");
+        SimHub.Logging.Current.Debug($"GameProcessor::FindOldDataById(): Could not find OldData for entry with id: {id}");
         return null;
     }
 
@@ -173,10 +186,41 @@ public class GameProcessor : IGameProcessor
         if (newData.CurrentLap == oldData?.CurrentLap
             && (newData.CurrentSector < oldData?.CurrentSector || newData.CurrentLapTime?.TotalSeconds < oldData?.CurrentLapTime?.TotalSeconds))
         {
-            SimHub.Logging.Current.Info($"GameProcessor::NormalizeEntryData(): OldData is newer than NewData for entry with id: {newData.Id}");
+            SimHub.Logging.Current.Debug($"GameProcessor::NormalizeEntryData(): OldData is newer than NewData for entry with id: {newData.Id}");
             return oldData;
         }
 
         return newData;
+    }
+
+    private TestableOpponent[] PrepareCustomScoring(TestableOpponent[] entries)
+    {
+        var totalElapsedTime = _raceEventHandler.GetElapsedSessionTime();
+
+        for (var i = 0; i < entries.Length; i++)
+        {
+            AddToEntryRaceProgressStore(entries[i], totalElapsedTime);
+        }
+
+        var sortedEntryIds = _entryProgressStore.GetEntryIdsSortedByProgress();
+
+        return entries.Sort((a, b) =>
+        {
+            var aIndex = sortedEntryIds.FindIndex(e => e == a.Id);
+            var bIndex = sortedEntryIds.FindIndex(e => e == b.Id);
+            return aIndex - bIndex;
+        }).ToArray();
+    }
+
+    private void AddToEntryRaceProgressStore(TestableOpponent entry, TimeSpan totalElapsedTime)
+    {
+        if (entry == null || entry.TrackPositionPercent == null || totalElapsedTime == TimeSpan.Zero)
+        {
+            return;
+        }
+
+        var miniSector = (int)(entry.TrackPositionPercent * 30);
+        SimHub.Logging.Current.Debug($"Process entry with id: {entry.Id} on position: {entry.Position}, gap to leader: {entry.GapToLeader}, mini sector: {miniSector}");
+        _entryProgressStore.AddIfNotAlreadyExists(new EntryProgress(entry.Id, entry.CurrentLap ?? 1, miniSector, totalElapsedTime, entry.Position));
     }
 }

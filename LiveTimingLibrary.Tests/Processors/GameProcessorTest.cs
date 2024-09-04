@@ -8,7 +8,8 @@ public class TestGameProcessor()
         var mockPropertyManager = new Mock<IPropertyManager>();
         var mockRaceEventHandler = new Mock<IRaceEventHandler>();
         var mockRaceEntryProcessor = new Mock<IRaceEntryProcessor>();
-        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, "test");
+        var mockEntryProgressStore = new Mock<IEntryProgressStore>();
+        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, mockEntryProgressStore.Object, "test");
 
         var gameData = new TestableGameData
         {
@@ -45,7 +46,8 @@ public class TestGameProcessor()
         var mockPropertyManager = new Mock<IPropertyManager>();
         var mockRaceEventHandler = new Mock<IRaceEventHandler>();
         var mockRaceEntryProcessor = new Mock<IRaceEntryProcessor>();
-        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, "test");
+        var mockEntryProgressStore = new Mock<IEntryProgressStore>();
+        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, mockEntryProgressStore.Object, "test");
 
         var gameData = new TestableGameData
         {
@@ -115,7 +117,8 @@ public class TestGameProcessor()
         var mockPropertyManager = new Mock<IPropertyManager>();
         var mockRaceEventHandler = new Mock<IRaceEventHandler>();
         var mockRaceEntryProcessor = new Mock<IRaceEntryProcessor>();
-        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, "test");
+        var mockEntryProgressStore = new Mock<IEntryProgressStore>();
+        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, mockEntryProgressStore.Object, "test");
 
         var gameData = new TestableGameData
         {
@@ -183,7 +186,8 @@ public class TestGameProcessor()
         var mockPropertyManager = new Mock<IPropertyManager>();
         var mockRaceEventHandler = new Mock<IRaceEventHandler>();
         var mockRaceEntryProcessor = new Mock<IRaceEntryProcessor>();
-        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, "test");
+        var mockEntryProgressStore = new Mock<IEntryProgressStore>();
+        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, mockEntryProgressStore.Object, "test");
 
         var gameData = new TestableGameData
         {
@@ -235,7 +239,8 @@ public class TestGameProcessor()
         var mockPropertyManager = new Mock<IPropertyManager>();
         var mockRaceEventHandler = new Mock<IRaceEventHandler>();
         var mockRaceEntryProcessor = new Mock<IRaceEntryProcessor>();
-        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, "test");
+        var mockEntryProgressStore = new Mock<IEntryProgressStore>();
+        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, mockEntryProgressStore.Object, "test");
 
         var gameData = new TestableGameData
         {
@@ -311,11 +316,13 @@ public class TestGameProcessor()
             m => m.Process(
                 "testgame_testtrack_race",
                 SessionType.Race,
+                It.IsAny<int>(),
                 It.IsAny<TestableOpponent>(),
                 It.IsAny<TestableOpponent>(),
                 It.IsAny<TestableOpponent>(),
                 It.IsAny<TestableOpponent>(),
-                It.IsAny<FastestFragmentTimesStore>()
+                It.IsAny<FastestFragmentTimesStore>(),
+                It.IsAny<IEntryProgressStore>()
             ),
             Times.Exactly(3)
         );
@@ -325,11 +332,13 @@ public class TestGameProcessor()
             m => m.Process(
                 "testgame_testtrack_race",
                 SessionType.Race,
+                It.IsAny<int>(),
                 gameData.NewData.Opponents[0],
                 gameData.OldData.Opponents[2],
                 null,
                 null,
-                It.IsAny<FastestFragmentTimesStore>()
+                It.IsAny<FastestFragmentTimesStore>(),
+                It.IsAny<IEntryProgressStore>()
             ),
             Times.Once()
         );
@@ -339,11 +348,13 @@ public class TestGameProcessor()
             m => m.Process(
                 "testgame_testtrack_race",
                 SessionType.Race,
+                It.IsAny<int>(),
                 gameData.NewData.Opponents[1],
                 null,
                 gameData.NewData.Opponents[0],
                 gameData.NewData.Opponents[0],
-                It.IsAny<FastestFragmentTimesStore>()
+                It.IsAny<FastestFragmentTimesStore>(),
+                It.IsAny<IEntryProgressStore>()
             ),
             Times.Once()
         );
@@ -353,11 +364,13 @@ public class TestGameProcessor()
             m => m.Process(
                 "testgame_testtrack_race",
                 SessionType.Race,
+                It.IsAny<int>(),
                 gameData.NewData.Opponents[2],
                 gameData.OldData.Opponents[0],
                 gameData.NewData.Opponents[0],
                 gameData.NewData.Opponents[1],
-                It.IsAny<FastestFragmentTimesStore>()
+                It.IsAny<FastestFragmentTimesStore>(),
+                It.IsAny<IEntryProgressStore>()
             ),
             Times.Once()
         );
@@ -369,7 +382,8 @@ public class TestGameProcessor()
         var mockPropertyManager = new Mock<IPropertyManager>();
         var mockRaceEventHandler = new Mock<IRaceEventHandler>();
         var mockRaceEntryProcessor = new Mock<IRaceEntryProcessor>();
-        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, "test");
+        var mockEntryProgressStore = new Mock<IEntryProgressStore>();
+        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, mockEntryProgressStore.Object, "test");
 
         var gameData = new TestableGameData
         {
@@ -417,11 +431,13 @@ public class TestGameProcessor()
             m => m.Process(
                 "testgame_testtrack_race",
                 SessionType.Race,
+                It.IsAny<int>(),
                 gameData.OldData.Opponents[0],
                 gameData.OldData.Opponents[0],
                 null,
                 null,
-                It.IsAny<FastestFragmentTimesStore>()
+                It.IsAny<FastestFragmentTimesStore>(),
+                It.IsAny<IEntryProgressStore>()
             ),
             Times.Once()
         );
@@ -433,7 +449,8 @@ public class TestGameProcessor()
         var mockPropertyManager = new Mock<IPropertyManager>();
         var mockRaceEventHandler = new Mock<IRaceEventHandler>();
         var mockRaceEntryProcessor = new Mock<IRaceEntryProcessor>();
-        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, "test");
+        var mockEntryProgressStore = new Mock<IEntryProgressStore>();
+        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, mockEntryProgressStore.Object, "test");
 
         var gameData = new TestableGameData
         {
@@ -468,5 +485,155 @@ public class TestGameProcessor()
         };
 
         Assert.Throws<Exception>(() => processor.Run(gameData));
+    }
+
+    [Fact]
+    public void TestPrepareCustomScoring()
+    {
+        var mockPropertyManager = new Mock<IPropertyManager>();
+        var mockRaceEventHandler = new Mock<IRaceEventHandler>();
+        var mockRaceEntryProcessor = new Mock<IRaceEntryProcessor>();
+        var mockEntryProgressStore = new Mock<IEntryProgressStore>();
+        var processor = new GameProcessor(mockPropertyManager.Object, mockRaceEventHandler.Object, mockRaceEntryProcessor.Object, mockEntryProgressStore.Object, "test");
+
+        mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(true);
+        mockEntryProgressStore.Setup(m => m.GetEntryIdsSortedByProgress()).Returns(["107", "110", "108", "109"]);
+        mockRaceEventHandler.Setup(m => m.GetElapsedSessionTime()).Returns(TimeSpan.Parse("00:04:46.1090000"));
+
+        var gameData = new TestableGameData
+        {
+            GameRunning = true,
+            GameName = "Testgame",
+            NewData = new TestableStatusDataBase
+            {
+                GameName = "Testgame",
+                TrackName = "Testtrack",
+                SessionName = "Race",
+                Opponents = [
+                    new TestableOpponent
+                    {
+                        CarNumber = "107",
+                        Position = 2,
+                        CurrentLap = 2,
+                        CurrentSector = 1,
+                        TrackPositionPercent = 0.831,
+                        IsPlayer = true,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.3150000")
+                    },
+                    new TestableOpponent
+                    {
+                        CarNumber = "108",
+                        Position = 4,
+                        CurrentLap = 2,
+                        CurrentSector = 1,
+                        TrackPositionPercent = 0.766,
+                        IsPlayer = false,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.9880000")
+                    },
+                    new TestableOpponent
+                    {
+                        CarNumber = "109",
+                        Position = 1,
+                        CurrentLap = 2,
+                        CurrentSector = 2,
+                        TrackPositionPercent = 0.899,
+                        IsPlayer = false,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.3020000")
+                    },
+                    new TestableOpponent
+                    {
+                        CarNumber = "110",
+                        Position = 3,
+                        CurrentLap = 2,
+                        CurrentSector = 1,
+                        TrackPositionPercent = 0.791,
+                        IsPlayer = false,
+                        CurrentLapTime = TimeSpan.Parse("00:00:01.8550000")
+                    }
+                ]
+            }
+        };
+
+        processor.Run(gameData);
+        mockEntryProgressStore.Verify(m => m.AddIfNotAlreadyExists(It.IsAny<EntryProgress>()), Times.Exactly(4));
+        mockEntryProgressStore.Verify(m => m.AddIfNotAlreadyExists(new EntryProgress("107", 2, 24, TimeSpan.Parse("00:04:46.1090000"), 2)), Times.Once);
+        mockEntryProgressStore.Verify(m => m.AddIfNotAlreadyExists(new EntryProgress("108", 2, 22, TimeSpan.Parse("00:04:46.1090000"), 4)), Times.Once);
+        mockEntryProgressStore.Verify(m => m.AddIfNotAlreadyExists(new EntryProgress("109", 2, 26, TimeSpan.Parse("00:04:46.1090000"), 1)), Times.Once);
+        mockEntryProgressStore.Verify(m => m.AddIfNotAlreadyExists(new EntryProgress("110", 2, 23, TimeSpan.Parse("00:04:46.1090000"), 3)), Times.Once);
+
+        mockRaceEntryProcessor.Verify(
+            m => m.Process(
+                "testgame_testtrack_race",
+                SessionType.Race,
+                It.IsAny<int>(),
+                It.IsAny<TestableOpponent>(),
+                It.IsAny<TestableOpponent>(),
+                It.IsAny<TestableOpponent>(),
+                It.IsAny<TestableOpponent>(),
+                It.IsAny<FastestFragmentTimesStore>(),
+                mockEntryProgressStore.Object
+            ),
+            Times.Exactly(4)
+        );
+
+        mockRaceEntryProcessor.Verify(
+            m => m.Process(
+                "testgame_testtrack_race",
+                SessionType.Race,
+                1,
+                gameData.NewData.Opponents[0],
+                null,
+                null,
+                null,
+                It.IsAny<FastestFragmentTimesStore>(),
+                mockEntryProgressStore.Object
+            ),
+            Times.Once()
+        );
+
+        mockRaceEntryProcessor.Verify(
+            m => m.Process(
+                "testgame_testtrack_race",
+                SessionType.Race,
+                2,
+                gameData.NewData.Opponents[3],
+                null,
+                gameData.NewData.Opponents[0],
+                gameData.NewData.Opponents[0],
+                It.IsAny<FastestFragmentTimesStore>(),
+                mockEntryProgressStore.Object
+            ),
+            Times.Once()
+        );
+
+        mockRaceEntryProcessor.Verify(
+            m => m.Process(
+                "testgame_testtrack_race",
+                SessionType.Race,
+                3,
+                gameData.NewData.Opponents[1],
+                null,
+                gameData.NewData.Opponents[0],
+                gameData.NewData.Opponents[3],
+                It.IsAny<FastestFragmentTimesStore>(),
+                mockEntryProgressStore.Object
+            ),
+            Times.Once()
+        );
+
+        mockRaceEntryProcessor.Verify(
+            m => m.Process(
+                "testgame_testtrack_race",
+                SessionType.Race,
+                4,
+                gameData.NewData.Opponents[2],
+                null,
+                gameData.NewData.Opponents[0],
+                gameData.NewData.Opponents[1],
+                It.IsAny<FastestFragmentTimesStore>(),
+                mockEntryProgressStore.Object
+            ),
+            Times.Once()
+        );
     }
 }

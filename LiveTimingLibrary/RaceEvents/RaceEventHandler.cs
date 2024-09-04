@@ -48,6 +48,11 @@ public class RaceEventHandler : IRaceEventHandler
         _lapEventStore.CurrentLapTime = currentLapTime;
     }
 
+    public TimeSpan GetElapsedSessionTime()
+    {
+        return _lapEventStore.CalcTotalElapsedTimeWithCurrentLapTime();
+    }
+
     public void ReinitPitEventStore(string sessionId)
     {
         _pitEventStore.Reset();
