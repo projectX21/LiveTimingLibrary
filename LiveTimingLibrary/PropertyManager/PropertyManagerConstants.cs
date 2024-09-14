@@ -2,6 +2,8 @@ public class PropertyManagerConstants
 {
     public static string PREFIX = "CHB.";
     public static string SESSION_TYPE = "SessionType";
+    public static string PLAYER_POS = "PlayerPosition";
+    public static string IS_PLAYER = "IsPlayer";
     public static string CAR_NUMBER = "CarNumber";
     public static string NAME = "Name";
     public static string TEAM_NAME = "TeamName";

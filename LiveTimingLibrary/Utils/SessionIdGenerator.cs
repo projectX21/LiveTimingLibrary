@@ -6,7 +6,7 @@ public class SessionIdGenerator
 {
     public static string Generate(TestableStatusDataBase statusData)
     {
-        string value = $"{statusData.GameName}_{statusData.TrackName}_{statusData.SessionName}";
+        string value = $"{statusData.GameName}_{NormalizeTrackName(statusData.TrackName)}";
         return value.ToLower().Replace(" ", "_");
 
         /*
@@ -21,5 +21,16 @@ public class SessionIdGenerator
         SimHub.Logging.Current.Info($"Calculated hash value for SessionID ({value}): {BitConverter.ToString(hash).ToLower().Replace("-", "")}");
         */
 
+    }
+
+    private static string NormalizeTrackName(string trackName)
+    {
+        // ACC has a weird bug, where the track name is constantly changing from 'Circuit Paul Ricard' to 'Paul Ricard' and vice versa
+        if (trackName.Contains("Paul Ricard"))
+        {
+            return "Paul Ricard";
+        }
+
+        return trackName;
     }
 }

@@ -83,7 +83,7 @@ public class EntryProgressStore : IEntryProgressStore
 
         if (!entryProgresses.Any(progress => progress.IdenticalLapNumberAndMiniSector(entryRaceProgress)))
         {
-            SimHub.Logging.Current.Info($"Add race process: {entryRaceProgress}");
+            SimHub.Logging.Current.Debug($"Add race process: {entryRaceProgress}");
             entryProgresses.Add(entryRaceProgress);
             ReorgEntryProgresses(entryProgresses);
         }
@@ -135,6 +135,12 @@ public class EntryProgressStore : IEntryProgressStore
                 {
                     // behind isn't lapped yet, therefore we have to fetch the progress of entry in front with the same lap number and mini sector as the entry behind
                     progressEntryInFront = GetProgress(idInFront, lastProgressEntryBehind.GetLapNumber(), lastProgressEntryBehind.GetMiniSector());
+
+                    // TODO Test
+                    if (progressEntryInFront == null)
+                    {
+                        return null;
+                    }
                 }
             }
         }

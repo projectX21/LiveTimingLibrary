@@ -35,7 +35,7 @@ public class RaceEventRecoveryFileEventSelector<T> : IRaceEventRecoveryFileEvent
             {
                 if (elapsedTimeLastReload == null || @specificEvent.ElapsedTime < elapsedTimeLastReload)
                 {
-                    SimHub.Logging.Current.Debug($"RaceEventRecoveryFileEventSelector::SelectSpecificEvents(): add PitEvent: {lines[i]}");
+                    SimHub.Logging.Current.Debug($"RaceEventRecoveryFileEventSelector::SelectSpecificEvents(): add Event: {lines[i]}");
                     events.Add(@specificEvent);
                 }
             }

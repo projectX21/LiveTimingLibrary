@@ -26,13 +26,16 @@ public class GameProcessor : IGameProcessor
 
     private TimeSpan? _lastCurrentLapTime;
 
-    public GameProcessor(IPropertyManager propertyManager, IRaceEventHandler handler, IRaceEntryProcessor processor, IEntryProgressStore progressStore, string currentGameName)
+    public GameProcessor(IPropertyManager propertyManager, IRaceEventHandler handler, IRaceEntryProcessor processor, IEntryProgressStore progressStore, string currentGameName, string sessionId)
     {
         _propertyManager = propertyManager;
         _raceEventHandler = handler;
         _raceEntryProcessor = processor;
         CurrentGameName = currentGameName;
         _entryProgressStore = progressStore;
+
+        _raceEventHandler.ReinitPitEventStore(sessionId);
+        _raceEventHandler.ReinitPlayerFinishedLapEventStore(sessionId);
     }
 
     public virtual TestableOpponent[] GetEntries()
@@ -91,7 +94,7 @@ public class GameProcessor : IGameProcessor
 
     private bool WasSessionReloaded()
     {
-        return _lastCurrentLap != null && _lastCurrentLapTime != null && _currentPlayerData != null &&
+        return _sessionType == SessionType.Race && _lastCurrentLap != null && _lastCurrentLapTime != null && _currentPlayerData != null &&
             (
                 _lastCurrentLap > _currentPlayerData.CurrentLap ||
                 (
@@ -129,7 +132,6 @@ public class GameProcessor : IGameProcessor
     {
         var fastestSectorTimes = new FastestFragmentTimesStore(entries);
 
-
         if (_sessionType == SessionType.Race && _entryProgressStore.UseCustomGapCalculation())
         {
             entries = PrepareCustomScoring(entries);
@@ -137,8 +139,6 @@ public class GameProcessor : IGameProcessor
 
         for (var i = 0; i < entries.Length; i++)
         {
-            SimHub.Logging.Current.Debug($"Process position: {i + 1}: {_entryProgressStore.GetLastEntryProgress(entries[i].Id)}, native position: {entries[i].Position}, gap to leader: {entries[i].GapToLeader}");
-
             _raceEntryProcessor.Process(
                 _currentGameData.NewData.SessionId,
                 _sessionType,

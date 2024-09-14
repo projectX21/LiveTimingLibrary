@@ -49,13 +49,13 @@ public class RaceEntryProcessor : IRaceEntryProcessor
         _fastestFragmentTimesStore = timesStore;
         _entryProgressStore = entryProgressStore;
 
-        if (_newEntryData.IsPlayer)
-        {
-            CreateEventWhenPlayerFinishedLap();
-        }
-
         if (sessionType == SessionType.Race)
         {
+            if (_newEntryData.IsPlayer)
+            {
+                CreateEventWhenPlayerFinishedLap();
+            }
+
             ProcessPitStopEvents();
         }
 
@@ -111,6 +111,12 @@ public class RaceEntryProcessor : IRaceEntryProcessor
 
     private void UpdateGeneralProperties()
     {
+        if (_newEntryData.IsPlayer)
+        {
+            _propertyManager.Add(PropertyManagerConstants.PLAYER_POS, _entryPos);
+        }
+
+        UpdateProperty(PropertyManagerConstants.IS_PLAYER, _newEntryData.IsPlayer);
         UpdateProperty(PropertyManagerConstants.CAR_NUMBER, _newEntryData.CarNumber);
         UpdateProperty(PropertyManagerConstants.NAME, _newEntryData.Name);
         UpdateProperty(PropertyManagerConstants.TEAM_NAME, _newEntryData.TeamName);
@@ -218,7 +224,7 @@ public class RaceEntryProcessor : IRaceEntryProcessor
 
     private void UpdateProperty<U>(string key, U value)
     {
-        _propertyManager.Add(_newEntryData.Position, key, value);
+        _propertyManager.Add(_entryPos, key, value);
     }
 
     private string CalcCapToLeader()

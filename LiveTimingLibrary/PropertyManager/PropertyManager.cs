@@ -31,6 +31,7 @@ public class PropertyManager : IPropertyManager
     {
         for (int i = 1; i <= 50; i++)
         {
+            Add(i, PropertyManagerConstants.IS_PLAYER, false);
             Add(i, PropertyManagerConstants.CAR_NUMBER, "");
             Add(i, PropertyManagerConstants.NAME, "");
             Add(i, PropertyManagerConstants.TEAM_NAME, "");

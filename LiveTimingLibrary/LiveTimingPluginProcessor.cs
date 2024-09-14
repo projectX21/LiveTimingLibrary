@@ -31,7 +31,7 @@ public class LiveTimingPluginProcessor
         if (GameProcessor?.CurrentGameName != gameData.GameName)
         {
             SimHub.Logging.Current.Info($"LiveTimingPluginProcessor::DataUpdate(): GameName has changed {GameProcessor?.CurrentGameName} to {gameData.GameName}");
-            GameProcessor = new GameProcessor(_propertyManager, _raceEventHandler, _raceEntryProcessor, new EntryProgressStore(gameData.GameName), gameData.GameName);
+            GameProcessor = new GameProcessor(_propertyManager, _raceEventHandler, _raceEntryProcessor, new EntryProgressStore(gameData.GameName), gameData.GameName, SessionIdGenerator.Generate(gameData.NewData));
         }
 
         GameProcessor.Run(gameData);

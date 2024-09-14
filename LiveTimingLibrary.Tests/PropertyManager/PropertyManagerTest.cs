@@ -43,6 +43,7 @@ public class PropertyManagerTest
 
         for (var i = 1; i <= 50; i++)
         {
+            TestProperty(mockPropertyManager, i, "IsPlayer", type, false, Times.Exactly(2));
             TestProperty(mockPropertyManager, i, "CarNumber", type, "", Times.Exactly(2));
             TestProperty(mockPropertyManager, i, "Name", type, "", Times.Exactly(2));
             TestProperty(mockPropertyManager, i, "TeamName", type, "", Times.Exactly(2));
