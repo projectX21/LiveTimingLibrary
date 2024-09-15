@@ -14,7 +14,7 @@ public class TestableGameDataConverter
         {
             GameName = data.GameName,
             GameRunning = data.GameRunning,
-            OldData = data.OldData != null ? TestableStatusDataBaseConverter.FromStatusDataBase(data.OldData, data.GameName) : null,
+            GamePaused = data.GamePaused,
             NewData = data.NewData != null ? TestableStatusDataBaseConverter.FromStatusDataBase(data.NewData, data.GameName) : null
         };
 
@@ -25,12 +25,6 @@ public class TestableGameDataConverter
     {
         if (result.GameName == "RFactor2" || result.GameName == "LMU")
         {
-            if (result.OldData != null)
-            {
-                RF2SpecificConvertions(result.OldData.Opponents, (originData as GameData<WrapV2>).GameOldData.Raw.Scoring.mVehicles);
-                RF2SpecificConvertions(result.OldData.Opponents, (originData as GameData<WrapV2>).GameOldData.Raw.telemetry.mVehicles);
-            }
-
             if (result.NewData != null)
             {
                 RF2SpecificConvertions(result.NewData.Opponents, (originData as GameData<WrapV2>).GameNewData.Raw.Scoring.mVehicles);
@@ -39,11 +33,6 @@ public class TestableGameDataConverter
         }
         else if (result.GameName == "AssettoCorsaCompetizione")
         {
-            if (result.OldData != null)
-            {
-                SetCarClass(result.OldData.Opponents, "GT3");
-            }
-
             if (result.NewData != null)
             {
                 SetCarClass(result.NewData.Opponents, "GT3");
@@ -51,11 +40,6 @@ public class TestableGameDataConverter
         }
         else if (result.GameName == "F12023")
         {
-            if (result.OldData != null)
-            {
-                SetCarClass(result.OldData.Opponents, "F1");
-            }
-
             if (result.NewData != null)
             {
                 SetCarClass(result.NewData.Opponents, "F1");

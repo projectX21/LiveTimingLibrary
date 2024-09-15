@@ -4,7 +4,7 @@ public class TestableGameData
 
     public bool GameRunning { get; set; }
 
-    public TestableStatusDataBase OldData { get; set; }
+    public bool GamePaused { get; set; }
 
     public TestableStatusDataBase NewData { get; set; }
 
@@ -25,7 +25,6 @@ public class TestableGameData
         // Return true if the fields match:
         return GameName == other.GameName &&
                GameRunning == other.GameRunning &&
-               OldData.Equals(other.OldData) &&
                NewData.Equals(other.NewData);
     }
 

@@ -16,6 +16,8 @@ public class GameProcessor : IGameProcessor
 
     protected TestableGameData _currentGameData;
 
+    protected TestableGameData _previousGameData;
+
     protected TestableOpponent _currentPlayerData;
 
     protected SessionType _sessionType;
@@ -47,12 +49,6 @@ public class GameProcessor : IGameProcessor
 
     public void Run(TestableGameData gameData)
     {
-        if (!gameData.GameRunning)
-        {
-            SimHub.Logging.Current.Debug("GameProcessor::Run(): Omit calculation cycle");
-            return;
-        }
-
         _currentGameData = gameData;
         var entries = GetEntries().Select(e => NormalizeEntryData(e, FindOldDataById(e.Id))).ToArray();
         _currentPlayerData = FindPlayer(entries);
@@ -70,12 +66,14 @@ public class GameProcessor : IGameProcessor
         }
         else
         {
+            CreateEventWhenPlayerFinishedLap();
             ProcessEntries(entries);
         }
 
         _lastSessionId = gameData.NewData.SessionId;
         _lastCurrentLap = _currentPlayerData.CurrentLap;
         _lastCurrentLapTime = _currentPlayerData.CurrentLapTime;
+        _previousGameData = _currentGameData;
     }
 
     private bool HasSessionIdChanged()
@@ -128,6 +126,32 @@ public class GameProcessor : IGameProcessor
         }
     }
 
+    private void CreateEventWhenPlayerFinishedLap()
+    {
+        if (_currentPlayerData == null)
+        {
+            return;
+        }
+
+        var oldData = FindOldDataById(_currentPlayerData.Id);
+
+        if (oldData == null)
+        {
+            return;
+        }
+
+        if (oldData.CurrentLap < _currentPlayerData.CurrentLap && _currentPlayerData.CurrentLap > 0)
+        {
+            _raceEventHandler.AddEvent(
+                new PlayerFinishedLapEvent(
+                    _currentGameData.NewData.SessionId,
+                    _currentPlayerData.CurrentLap - 1 ?? 1,
+                    _currentPlayerData.LastTimes.GetByLapFragmentType(LapFragmentType.FULL_LAP) ?? TimeSpan.Zero
+                )
+            );
+        }
+    }
+
     private void ProcessEntries(TestableOpponent[] entries)
     {
         var fastestSectorTimes = new FastestFragmentTimesStore(entries);
@@ -167,9 +191,9 @@ public class GameProcessor : IGameProcessor
 
     private TestableOpponent FindOldDataById(string id)
     {
-        if (_currentGameData.OldData?.Opponents != null && _currentGameData.OldData.Opponents.Length > 0)
+        if (_previousGameData?.NewData?.Opponents != null && _previousGameData.NewData.Opponents.Length > 0)
         {
-            var result = _currentGameData.OldData.Opponents.Where(o => o.Id == id);
+            var result = _previousGameData.NewData.Opponents.Where(o => o.Id == id);
 
             if (result.Count() > 0)
             {

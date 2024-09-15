@@ -18,7 +18,7 @@ public class RaceEventHandler : IRaceEventHandler
     public void AddEvent(PitEvent pitEvent)
     {
         pitEvent.ElapsedTime = _lapEventStore.CalcTotalElapsedTimeWithCurrentLapTime();
-        SimHub.Logging.Current.Debug($"RaceEventHandler::AddEvent(): add PitEvent: {pitEvent}");
+        SimHub.Logging.Current.Info($"RaceEventHandler::AddEvent(): add PitEvent: {pitEvent}");
 
         _recoveryFile.AddEvent(pitEvent);
         _pitEventStore.Add(pitEvent);
@@ -27,7 +27,7 @@ public class RaceEventHandler : IRaceEventHandler
     public void AddEvent(PlayerFinishedLapEvent lapEvent)
     {
         lapEvent.ElapsedTime = _lapEventStore.CalcTotalElapsedTimeAfterLastCompletedLap() + lapEvent.LapTime;
-        SimHub.Logging.Current.Debug($"RaceEventHandler::AddEvent(): add PlayerFinishedLapEvent: {lapEvent}");
+        SimHub.Logging.Current.Info($"RaceEventHandler::AddEvent(): add PlayerFinishedLapEvent: {lapEvent}");
 
         _recoveryFile.AddEvent(lapEvent);
         _lapEventStore.Add(lapEvent);
@@ -36,7 +36,7 @@ public class RaceEventHandler : IRaceEventHandler
     public void AddEvent(SessionReloadEvent sessionReloadEvent)
     {
         sessionReloadEvent.ElapsedTime = _lapEventStore.CalcReloadTime(sessionReloadEvent.LapNumber);
-        SimHub.Logging.Current.Debug($"RaceEventHandler::AddEvent(): add SessionReloadEvent: {sessionReloadEvent}");
+        SimHub.Logging.Current.Info($"RaceEventHandler::AddEvent(): add SessionReloadEvent: {sessionReloadEvent}");
 
         _recoveryFile.AddEvent(sessionReloadEvent);
         ReinitPitEventStore(sessionReloadEvent.SessionId);
@@ -55,12 +55,14 @@ public class RaceEventHandler : IRaceEventHandler
 
     public void ReinitPitEventStore(string sessionId)
     {
+        SimHub.Logging.Current.Info($"Reinit pit event store for event: {sessionId}");
         _pitEventStore.Reset();
         _recoveryFile.ReadPitEvents(sessionId).ForEach(_pitEventStore.Add);
     }
 
     public void ReinitPlayerFinishedLapEventStore(string sessionId)
     {
+        SimHub.Logging.Current.Info($"Reinit player finished lap event store for event: {sessionId}");
         _lapEventStore.Reset();
         _recoveryFile.ReadPlayerFinishedLapEvents(sessionId).ForEach(_lapEventStore.Add);
     }

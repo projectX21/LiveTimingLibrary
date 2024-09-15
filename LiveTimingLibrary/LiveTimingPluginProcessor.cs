@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("LiveTimingLibrary.Tests")]
@@ -22,9 +23,19 @@ public class LiveTimingPluginProcessor
 
     public void DataUpdate(TestableGameData gameData)
     {
-        if (gameData.NewData == null)
+        if (!gameData.GameRunning || gameData.GamePaused)
+        {
+            SimHub.Logging.Current.Debug("GameProcessor::Run(): Omit calculation cycle");
+            return;
+        }
+        else if (gameData.NewData == null)
         {
             SimHub.Logging.Current.Debug("LiveTimingPluginProcessor::DataUpdate(): NewData isn't filled");
+            return;
+        }
+        else if (gameData.NewData.Opponents.Count() <= 1)
+        {
+            SimHub.Logging.Current.Debug("LiveTimingPluginProcessor::DataUpdate(): Opponents aren't set correctly");
             return;
         }
 

@@ -51,34 +51,10 @@ public class RaceEntryProcessor : IRaceEntryProcessor
 
         if (sessionType == SessionType.Race)
         {
-            if (_newEntryData.IsPlayer)
-            {
-                CreateEventWhenPlayerFinishedLap();
-            }
-
             ProcessPitStopEvents();
         }
 
         UpdateProperties();
-    }
-
-    private void CreateEventWhenPlayerFinishedLap()
-    {
-        if (_oldEntryData == null)
-        {
-            return;
-        }
-
-        if (_oldEntryData.CurrentLap < _newEntryData.CurrentLap && _newEntryData.CurrentLap > 0)
-        {
-            _raceEventHandler.AddEvent(
-                new PlayerFinishedLapEvent(
-                    _sessionId,
-                    _newEntryData.CurrentLap - 1 ?? 1,
-                    _newEntryData.LastTimes.GetByLapFragmentType(LapFragmentType.FULL_LAP) ?? TimeSpan.Zero
-                )
-            );
-        }
     }
 
     private void ProcessPitStopEvents()
