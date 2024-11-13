@@ -1,6 +1,6 @@
 /*
 
-Not able to test it
+Not able to test it, because GameData uses only internal setters. Therefore it isn't possible to create objects with test data
 
 using System.Text;
 using GameReaderCommon;

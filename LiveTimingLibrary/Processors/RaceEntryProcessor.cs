@@ -49,17 +49,13 @@ public class RaceEntryProcessor : IRaceEntryProcessor
         _fastestFragmentTimesStore = timesStore;
         _entryProgressStore = entryProgressStore;
 
-        if (sessionType == SessionType.Race)
-        {
-            ProcessPitStopEvents();
-        }
-
+        ProcessPitStopEvents();
         UpdateProperties();
     }
 
     private void ProcessPitStopEvents()
     {
-        if (_oldEntryData == null)
+        if (_sessionType != SessionType.Race || _oldEntryData == null)
         {
             return;
         }

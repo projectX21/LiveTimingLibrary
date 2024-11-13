@@ -68,8 +68,6 @@
 
     <Compile Include="Data\TestableGameData.cs" />
     <Compile Include="Data\TestableGameDataConverter.cs" />
-    <Compile Include="Data\TestableStatusDataBase.cs" />
-    <Compile Include="Data\TestableStatusDataBaseConverter.cs" />
 
     <Compile Include="EntryData\EntryPitData.cs" />
     <Compile Include="EntryData\EntryProgress.cs" />

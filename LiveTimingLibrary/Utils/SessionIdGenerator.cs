@@ -4,9 +4,9 @@ using System.Text;
 
 public class SessionIdGenerator
 {
-    public static string Generate(TestableStatusDataBase statusData)
+    public static string Generate(TestableGameData gameData)
     {
-        string value = $"{statusData.GameName}_{NormalizeTrackName(statusData.TrackName)}";
+        string value = $"{gameData.GameName}_{NormalizeTrackName(gameData.TrackName)}";
         return value.ToLower().Replace(" ", "_");
 
         /*

@@ -1,3 +1,5 @@
+using System.Linq;
+
 public class TestableGameData
 {
     public string GameName { get; set; }
@@ -6,7 +8,21 @@ public class TestableGameData
 
     public bool GamePaused { get; set; }
 
-    public TestableStatusDataBase NewData { get; set; }
+    public string TrackName { get; set; }
+
+    public string SessionName { get; set; }
+
+    public string SessionId
+    {
+        get
+        {
+            return SessionIdGenerator.Generate(this);
+        }
+    }
+
+    public TestableOpponent[] Opponents { get; set; }
+
+    // public TestableStatusDataBase NewData { get; set; }
 
     public override bool Equals(object obj)
     {
@@ -25,7 +41,11 @@ public class TestableGameData
         // Return true if the fields match:
         return GameName == other.GameName &&
                GameRunning == other.GameRunning &&
-               NewData.Equals(other.NewData);
+               GamePaused == other.GamePaused &&
+               TrackName == other.TrackName &&
+               SessionId == other.SessionId &&
+               SessionName == other.SessionName &&
+               Enumerable.SequenceEqual(Opponents, other.Opponents);
     }
 
     public override int GetHashCode()

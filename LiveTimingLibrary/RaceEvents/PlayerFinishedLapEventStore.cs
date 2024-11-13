@@ -67,22 +67,42 @@ public class PlayerFinishedLapEventStore : IPlayerFinishedLapEventStore
 
     public void Add(PlayerFinishedLapEvent finishedLapEvent)
     {
-        ValidateNewEvent(finishedLapEvent);
-
-        SimHub.Logging.Current.Debug($"PlayerFinishedLapEventStore::Add(): add event: {finishedLapEvent}");
-        _lapEvents.Add(finishedLapEvent);
+        if (IsAddable(finishedLapEvent))
+        {
+            SimHub.Logging.Current.Debug($"PlayerFinishedLapEventStore::Add(): add event: {finishedLapEvent}");
+            _lapEvents.Add(finishedLapEvent);
+        }
     }
 
-    public void ValidateNewEvent(PlayerFinishedLapEvent finishedLapEvent)
+    /*
+        public void ValidateNewEvent(PlayerFinishedLapEvent finishedLapEvent)
+        {
+            if (_lapEvents.Count == 0 && finishedLapEvent.LapNumber != 1)
+            {
+                throw new Exception("PlayerFinishedLapEventStore::ValidateNewEvent(): PlayerFinishedLapEvent is not addable!. First element must have the lap number 1!");
+            }
+            else if (_lapEvents.Count > 0
+                    && finishedLapEvent.LapNumber != (_lapEvents[_lapEvents.Count - 1].LapNumber + 1))
+            {
+                throw new Exception($"PlayerFinishedLapEventStore::ValidateNewEvent(): PlayerFinishedLapEvent is not addable!. New lap number {finishedLapEvent.LapNumber} is not the consecutive one in the current data (last lap number in store: {_lapEvents[_lapEvents.Count - 1].LapNumber})!");
+            }
+        }
+    */
+
+    public Boolean IsAddable(PlayerFinishedLapEvent finishedLapEvent)
     {
         if (_lapEvents.Count == 0 && finishedLapEvent.LapNumber != 1)
         {
-            throw new Exception("PlayerFinishedLapEventStore::ValidateNewEvent(): PlayerFinishedLapEvent is not addable!. First element must have the lap number 1!");
+            SimHub.Logging.Current.Warn("PlayerFinishedLapEventStore::ValidateNewEvent(): PlayerFinishedLapEvent is not addable!. First element must have the lap number 1!");
+            return false;
         }
         else if (_lapEvents.Count > 0
                 && finishedLapEvent.LapNumber != (_lapEvents[_lapEvents.Count - 1].LapNumber + 1))
         {
-            throw new Exception($"PlayerFinishedLapEventStore::ValidateNewEvent(): PlayerFinishedLapEvent is not addable!. New lap number {finishedLapEvent.LapNumber} is not the consecutive one in the current data (last lap number in store: {_lapEvents[_lapEvents.Count - 1].LapNumber})!");
+            SimHub.Logging.Current.Warn($"PlayerFinishedLapEventStore::ValidateNewEvent(): PlayerFinishedLapEvent is not addable!. New lap number {finishedLapEvent.LapNumber} is not the consecutive one in the current data (last lap number in store: {_lapEvents[_lapEvents.Count - 1].LapNumber})!");
+            return false;
         }
+
+        return true;
     }
 }

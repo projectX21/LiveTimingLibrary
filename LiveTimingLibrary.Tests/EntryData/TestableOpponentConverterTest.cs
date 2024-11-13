@@ -1,5 +1,4 @@
 using GameReaderCommon;
-using Moq;
 
 public class TestableOpponentConverterTest
 {

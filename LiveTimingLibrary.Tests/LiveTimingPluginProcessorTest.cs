@@ -14,18 +14,65 @@ public class LiveTimingPluginProcessorTest
         mockGameProcessor.SetupGet(m => m.CurrentGameName).Returns("Test");
         processor.GameProcessor = mockGameProcessor.Object;
 
-        // NewData is null, therefore the Run() method of the gameProcessor shouldn't be called
+        // Game isn't running, therefore the Run() method of the gameProcessor shouldn't be called
         var gameData = new TestableGameData
         {
-            GameRunning = true,
             GameName = "Test",
-            OldData = new TestableStatusDataBase()
+            GameRunning = false
         };
         processor.DataUpdate(gameData);
         mockGameProcessor.Verify(m => m.Run(It.IsAny<TestableGameData>()), Times.Never());
 
-        // NewData is filled now, therefore the Run() method of the gameProcessor should be called
-        gameData.NewData = new TestableStatusDataBase();
+        // Game is paused, therefore the Run() method of the gameProcessor shouldn't be called
+        gameData = new TestableGameData
+        {
+            GameName = "Test",
+            GamePaused = true
+        };
+        processor.DataUpdate(gameData);
+        mockGameProcessor.Verify(m => m.Run(It.IsAny<TestableGameData>()), Times.Never());
+
+        // No opponents, therefore the Run() method of the gameProcessor shouldn't be called
+        gameData = new TestableGameData
+        {
+            GameName = "Test",
+            GameRunning = true,
+            Opponents = []
+        };
+        processor.DataUpdate(gameData);
+        mockGameProcessor.Verify(m => m.Run(It.IsAny<TestableGameData>()), Times.Never());
+
+        // ACC has the special case, where only the driver itself exists in the opponent list while the initialisation runs.
+        gameData = new TestableGameData
+        {
+            GameName = "Test",
+            GameRunning = true,
+            Opponents = [
+                new TestableOpponent
+                {
+                    IsPlayer = true
+                }
+            ]
+        };
+        processor.DataUpdate(gameData);
+        mockGameProcessor.Verify(m => m.Run(It.IsAny<TestableGameData>()), Times.Never());
+
+        // we have two opponents and the Run() method should run now
+        gameData = new TestableGameData
+        {
+            GameName = "Test",
+            GameRunning = true,
+            Opponents = [
+                new TestableOpponent
+                {
+                    IsPlayer = true
+                },
+                new TestableOpponent
+                {
+                    IsPlayer = false
+                }
+            ]
+        };
         processor.DataUpdate(gameData);
         mockGameProcessor.Verify(m => m.Run(It.IsAny<TestableGameData>()), Times.Once());
     }
@@ -42,22 +89,25 @@ public class LiveTimingPluginProcessorTest
         var gameData = new TestableGameData
         {
             GameRunning = true,
+            GamePaused = false,
             GameName = "Test",
-            NewData = new TestableStatusDataBase
-            {
-                SessionName = "Race",
-                TrackName = "Testtrack",
-                Opponents = [
+            SessionName = "Race",
+            TrackName = "Testtrack",
+            Opponents = [
                     new TestableOpponent
                     {
+                        CarNumber = "107",
                         IsPlayer = true,
                         CurrentLap = 2,
                         CurrentSector = 3,
                         CurrentLapTime = TimeSpan.Parse("00:00:01.4100000"),
+                    },
+                    new TestableOpponent
+                    {
+                        CarNumber = "108",
+                        IsPlayer = false
                     }
                 ]
-            },
-            OldData = new TestableStatusDataBase()
         };
         processor.DataUpdate(gameData);
         Assert.Equal("Test", processor.GameProcessor.CurrentGameName);

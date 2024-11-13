@@ -30,13 +30,54 @@ public class PitEventStore : IPitEventStore
             _entryCache.Add(pitEvent.EntryId, new List<PitEvent>());
         }
 
-        ValidateNewEvent(pitEvent);
-
-        SimHub.Logging.Current.Debug($"PitEventStore::Add(): add event: {pitEvent}");
-        _entryCache[pitEvent.EntryId].Add(pitEvent);
+        if (IsAddable(pitEvent))
+        {
+            SimHub.Logging.Current.Debug($"PitEventStore::Add(): add event: {pitEvent}");
+            _entryCache[pitEvent.EntryId].Add(pitEvent);
+        }
     }
 
-    public void ValidateNewEvent(PitEvent pitEvent)
+    /*
+        public void ValidateNewEvent(PitEvent pitEvent)
+        {
+            var entryEvents = _entryCache[pitEvent.EntryId];
+
+            if (pitEvent.Type == RaceEventType.PitIn)
+            {
+                // a PitIn event is only addable when there aren't any pit events yet, or the last one in the current data is a PitOut event
+                if (entryEvents.Count > 0 && entryEvents[entryEvents.Count - 1].Type != RaceEventType.PitOut)
+                {
+                    var message = $"PitEventStore::ValidateNewEvent(): PitIn event is not addable: {pitEvent}! Current size of pit events: {entryEvents.Count}";
+
+                    if (entryEvents.Count > 0)
+                    {
+                        message += $", last event type: {RaceEventTypeConverter.FromEnum(entryEvents[entryEvents.Count - 1].Type)}";
+                    }
+
+                    throw new Exception(message);
+                }
+            }
+            else if (pitEvent.Type == RaceEventType.PitOut)
+            {
+                // a PitOut event is only addable when there are at least one pit event yet and the last one in the current data is a PitIn event
+
+                if (entryEvents.Count == 0 || entryEvents[entryEvents.Count - 1].Type != RaceEventType.PitIn)
+                {
+                    var message = $"PitEventStore::ValidateNewEvent(): PitOut event is not addable: {pitEvent}! Current size of pit events: {entryEvents.Count}";
+
+                    if (entryEvents.Count > 0)
+                    {
+                        message += $", last event type: {RaceEventTypeConverter.FromEnum(entryEvents[entryEvents.Count - 1].Type)}";
+                    }
+
+                    throw new Exception(message);
+                }
+
+            }
+        }
+        */
+
+    public Boolean IsAddable(PitEvent pitEvent)
     {
         var entryEvents = _entryCache[pitEvent.EntryId];
 
@@ -52,7 +93,8 @@ public class PitEventStore : IPitEventStore
                     message += $", last event type: {RaceEventTypeConverter.FromEnum(entryEvents[entryEvents.Count - 1].Type)}";
                 }
 
-                throw new Exception(message);
+                SimHub.Logging.Current.Warn(message);
+                return false;
             }
         }
         else if (pitEvent.Type == RaceEventType.PitOut)
@@ -68,10 +110,12 @@ public class PitEventStore : IPitEventStore
                     message += $", last event type: {RaceEventTypeConverter.FromEnum(entryEvents[entryEvents.Count - 1].Type)}";
                 }
 
-                throw new Exception(message);
+                SimHub.Logging.Current.Warn(message);
+                return false;
             }
-
         }
+
+        return true;
     }
 
     private int CalcTotalNumberOfPitStops(string entryId)

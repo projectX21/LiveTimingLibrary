@@ -1,18 +1,26 @@
 public class PitEventStoreTest
 {
     [Fact]
-    public void TestValidateNewEvent()
+    public void TestIsAddable()
     {
         var store = new PitEventStore();
         store.Add(GetFirstPitInEvent());
+        Assert.Equal(1, store.GetPitDataByEntryId("107").TotalPitStops);
+        Assert.Equal(0, store.GetPitDataByEntryId("107").TotalPitDuration);
 
-        // it's not valid to add a Pit event after another PitOut event
-        Assert.Throws<Exception>(() => store.Add(GetSecondPitInEvent()));
+        // Should not add a PitIn event directly after another one
+        store.Add(GetFirstPitInEvent());
+        Assert.Equal(1, store.GetPitDataByEntryId("107").TotalPitStops);
+        Assert.Equal(0, store.GetPitDataByEntryId("107").TotalPitDuration);
 
         store.Add(GetFirstPitOutEvent());
+        Assert.Equal(1, store.GetPitDataByEntryId("107").TotalPitStops);
+        Assert.Equal(37, store.GetPitDataByEntryId("107").TotalPitDuration);
 
-        // it's not valid to add a PitOut event after another PitOut event
-        Assert.Throws<Exception>(() => store.Add(GetSecondPitOutEvent()));
+        // Should not add a PitOut event directly after another one
+        store.Add(GetFirstPitOutEvent());
+        Assert.Equal(1, store.GetPitDataByEntryId("107").TotalPitStops);
+        Assert.Equal(37, store.GetPitDataByEntryId("107").TotalPitDuration);
     }
 
     [Fact]

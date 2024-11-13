@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using ACSharedMemory.ACC.Reader;
 using AcTools.Utils.Helpers;
@@ -15,7 +16,11 @@ public class TestableGameDataConverter
             GameName = data.GameName,
             GameRunning = data.GameRunning,
             GamePaused = data.GamePaused,
-            NewData = data.NewData != null ? TestableStatusDataBaseConverter.FromStatusDataBase(data.NewData, data.GameName) : null
+            TrackName = data.NewData?.TrackName,
+            SessionName = data.NewData?.SessionTypeName,
+            Opponents = (
+                data.NewData?.Opponents?.Count > 0 ? data.NewData.Opponents.Select(TestableOpponentConverter.FromOpponent) : new List<TestableOpponent>()
+            ).ToArray()
         };
 
         return GameSpecificConvertions(result, data);
@@ -23,26 +28,16 @@ public class TestableGameDataConverter
 
     private static TestableGameData GameSpecificConvertions(TestableGameData result, GameData originData)
     {
-        if (result.GameName == "RFactor2" || result.GameName == "LMU")
+        if (result.Opponents?.Count() > 0)
         {
-            if (result.NewData != null)
+            if (result.GameName == "RFactor2" || result.GameName == "LMU")
             {
-                RF2SpecificConvertions(result.NewData.Opponents, (originData as GameData<WrapV2>).GameNewData.Raw.Scoring.mVehicles);
-                RF2SpecificConvertions(result.NewData.Opponents, (originData as GameData<WrapV2>).GameNewData.Raw.telemetry.mVehicles);
+                RF2SpecificConvertions(result.Opponents, (originData as GameData<WrapV2>).GameNewData.Raw.Scoring.mVehicles);
+                RF2SpecificConvertions(result.Opponents, (originData as GameData<WrapV2>).GameNewData.Raw.telemetry.mVehicles);
             }
-        }
-        else if (result.GameName == "AssettoCorsaCompetizione")
-        {
-            if (result.NewData != null)
+            else if (result.GameName == "F12023")
             {
-                SetCarClass(result.NewData.Opponents, "GT3");
-            }
-        }
-        else if (result.GameName == "F12023")
-        {
-            if (result.NewData != null)
-            {
-                SetCarClass(result.NewData.Opponents, "F1");
+                SetCarClass(result.Opponents, "F1");
             }
         }
 
@@ -65,14 +60,15 @@ public class TestableGameDataConverter
         {
             foreach (var rF2Entry in rF2Entries)
             {
-                var rF2Name = new string(System.Text.Encoding.Default.GetString(rF2Entry.mVehicleName).Where(c => !char.IsControl(c)).ToArray());
+                var rF2Name = new string(
+                    System.Text.Encoding.Default.GetString(rF2Entry.mVehicleName).Where(c => !char.IsControl(c)).ToArray()
+                );
 
                 if (rF2Name.Contains("#" + entry.CarNumber + " "))
                 {
                     if (rF2Entry.mTimeBehindNext != 0.0)
                     {
                         entry.GapToInFront = rF2Entry.mTimeBehindNext;
-                        SimHub.Logging.Current.Info($"Car #{rF2Name} setted GapToInFront to: {entry.GapToInFront}");
                     }
                 }
             };
@@ -87,7 +83,9 @@ public class TestableGameDataConverter
         {
             foreach (var rF2Entry in rF2Entries)
             {
-                var rF2Name = new string(System.Text.Encoding.Default.GetString(rF2Entry.mVehicleName).Where(c => !char.IsControl(c)).ToArray());
+                var rF2Name = new string(
+                    System.Text.Encoding.Default.GetString(rF2Entry.mVehicleName).Where(c => !char.IsControl(c)).ToArray()
+                );
 
                 if (rF2Name.Contains("#" + entry.CarNumber + " "))
                 {

@@ -14,5 +14,7 @@ public interface IPlayerFinishedLapEventStore
 
     void Add(PlayerFinishedLapEvent finishedLapEvent);
 
-    void ValidateNewEvent(PlayerFinishedLapEvent finishedLapEvent);
+    // void ValidateNewEvent(PlayerFinishedLapEvent finishedLapEvent);
+
+    Boolean IsAddable(PlayerFinishedLapEvent finishedLapEvent);
 }

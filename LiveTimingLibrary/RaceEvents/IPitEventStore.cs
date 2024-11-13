@@ -1,3 +1,5 @@
+using System;
+
 public interface IPitEventStore
 {
     EntryPitData GetPitDataByEntryId(string entryId);
@@ -6,5 +8,7 @@ public interface IPitEventStore
 
     void Add(PitEvent pitEvent);
 
-    void ValidateNewEvent(PitEvent pitEvent);
+    // void ValidateNewEvent(PitEvent pitEvent);
+
+    Boolean IsAddable(PitEvent pitEvent);
 }

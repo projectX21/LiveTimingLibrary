@@ -2,70 +2,6 @@ using Moq;
 
 public class RaceEntryProcessorTest
 {
-    [Fact]
-    public void TestCreatePlayerFinishedLapEventOnPlayerLapNumberChange()
-    {
-        var mockRaceEventHandler = new Mock<IRaceEventHandler>();
-        mockRaceEventHandler.Setup(m => m.GetPitDataByEntryId(It.IsAny<string>())).Returns(new EntryPitData("", 0, 0, null, null));
-
-        var mockPropertyManager = new Mock<IPropertyManager>();
-        var mockFastestFragmentTimesStore = new Mock<IFastestFragmentTimesStore>();
-
-        RaceEntryProcessor processor = new(mockPropertyManager.Object, mockRaceEventHandler.Object);
-
-        var oldEntryData = new TestableOpponent
-        {
-            IsPlayer = true,
-            CurrentLap = 2,
-            CurrentTimes = new TestableSectorTimes(),
-            LastTimes = new TestableSectorTimes(),
-            BestTimes = new TestableSectorTimes()
-        };
-
-        var newEntryData = new TestableOpponent
-        {
-            CurrentLap = 2,
-            Position = 6,
-            IsPlayer = true,
-            CurrentTimes = new TestableSectorTimes(),
-            LastTimes = new TestableSectorTimes(),
-            BestTimes = new TestableSectorTimes()
-        };
-
-        // CurrentLap is 2 on both
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
-        mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<PlayerFinishedLapEvent>()), Times.Never());
-
-        // newData.CurrentLap is bigger than oldData.CurrentLap, but newData.CurrentLap isn't greater than 0
-        oldEntryData.CurrentLap = -1;
-        newEntryData.CurrentLap = 0;
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
-        mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<PlayerFinishedLapEvent>()), Times.Never());
-
-        // A event should be added now, because lap number has changed from 0 to 1
-        oldEntryData.CurrentLap = 1;
-        newEntryData.CurrentLap = 2;
-        newEntryData.LastTimes = new TestableSectorTimes
-        {
-            FullLap = TimeSpan.Parse("00:01:30.1040000")
-        };
-
-        // The last lap should be added, therefore 2 - 1 = 1
-        PlayerFinishedLapEvent expectedEvent = new("testgame_testtrack_race", 1, TimeSpan.Parse("00:01:30.1040000"));
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
-        mockRaceEventHandler.Verify(m => m.AddEvent(expectedEvent), Times.Once());
-
-        // No new event because IsPlayer is false now
-        newEntryData.IsPlayer = false;
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
-        mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<PlayerFinishedLapEvent>()), Times.Once());
-
-        // No new event because OldEntryData is null
-        oldEntryData = null;
-        newEntryData.IsPlayer = true;
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
-        mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<PlayerFinishedLapEvent>()), Times.Once());
-    }
 
     [Fact]
     public void TestShouldNotProcessAnyPitEventWhenSessionTypeIsNotARace()
@@ -100,31 +36,31 @@ public class RaceEntryProcessorTest
         };
 
         // IsInPit is false for both
-        processor.Process("testgame_testtrack_race", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<PitEvent>()), Times.Never());
 
         // IsInPit is true for both
         oldEntryData.IsInPit = true;
         newEntryData.IsInPit = true;
-        processor.Process("testgame_testtrack_race", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<PitEvent>()), Times.Never());
 
         // IsInPit is only true on NewEntryData -> for SessionType.Race a PitEvent with Type PitIn should be created, but not for Qualifying
         oldEntryData.IsInPit = false;
         newEntryData.IsInPit = true;
-        processor.Process("testgame_testtrack_race", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<PitEvent>()), Times.Never());
 
         // IsInPit is only true on OldEntryData -> for SessionType.Race a PitEvent with Type PitOut should be created, but not for Qualifying
         oldEntryData.IsInPit = true;
         newEntryData.IsInPit = false;
-        processor.Process("testgame_testtrack_race", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
-        PitEvent expectedPitOutEvent = new("testgame_testtrack_race", RaceEventType.PitOut, "107", 2, TimeSpan.Parse("01:14:20.2010000"));
+        processor.Process("testgame_testtrack", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        PitEvent expectedPitOutEvent = new("testgame_testtrack", RaceEventType.PitOut, "107", 2, TimeSpan.Parse("01:14:20.2010000"));
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<PitEvent>()), Times.Never());
 
         // No new event because OldEntryData is null
         oldEntryData = null;
-        processor.Process("testgame_testtrack_race", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Qualifying, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockRaceEventHandler.Verify(m => m.AddEvent(It.IsAny<PitEvent>()), Times.Never());
     }
 
@@ -189,7 +125,7 @@ public class RaceEntryProcessorTest
             GapToLeader = 10.985
         };
 
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Race, 6, newEntryData, oldEntryData, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockPropertyManager.Verify(m => m.Add(6, "CarNumber", "107"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "Name", "Test Name"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "TeamName", "Test Team Name"), Times.Once());
@@ -269,14 +205,14 @@ public class RaceEntryProcessorTest
 
         // Should calculate gaps by GapToLeader property when EntryProgressStore.UseCustomGapCalculation is false...
         mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(false);
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, null, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, mockEntryProgressStore.Object);
+        processor.Process("testgame_testtrack", SessionType.Race, 6, newEntryData, null, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, mockEntryProgressStore.Object);
         mockPropertyManager.Verify(m => m.Add(6, "GapToFirst", "+17.395"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "GapToInFront", "+6.410"), Times.Once());
         mockPropertyManager.Invocations.Clear();
 
         // ... or session type is not 'Race'
         mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(true);
-        processor.Process("testgame_testtrack_qualifying", SessionType.Qualifying, 6, newEntryData, null, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, mockEntryProgressStore.Object);
+        processor.Process("testgame_testtrack", SessionType.Qualifying, 6, newEntryData, null, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, mockEntryProgressStore.Object);
         mockPropertyManager.Verify(m => m.Add(6, "GapToFirst", "+1.163"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "GapToInFront", "+0.057"), Times.Once());
         mockPropertyManager.Invocations.Clear();
@@ -285,7 +221,7 @@ public class RaceEntryProcessorTest
         mockEntryProgressStore.Setup(m => m.UseCustomGapCalculation()).Returns(true);
         mockEntryProgressStore.Setup(m => m.CalcGap("108", "107")).Returns("+2L");
         mockEntryProgressStore.Setup(m => m.CalcGap("109", "107")).Returns("+10.391");
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, null, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, mockEntryProgressStore.Object);
+        processor.Process("testgame_testtrack", SessionType.Race, 6, newEntryData, null, leaderData, inFrontData, mockFastestFragmentTimesStore.Object, mockEntryProgressStore.Object);
         mockPropertyManager.Verify(m => m.Add(6, "GapToFirst", "+2L"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "GapToInFront", "+10.391"), Times.Once());
     }
@@ -340,7 +276,7 @@ public class RaceEntryProcessorTest
         mockFastestFragmentTimesStore.Setup(m => m.GetLastLapFragmentTimeIndicator(It.IsAny<TestableOpponent>(), LapFragmentType.SECTOR_3)).Returns("CLASS_BEST");
         mockFastestFragmentTimesStore.Setup(m => m.GetLastLapFragmentTimeIndicator(It.IsAny<TestableOpponent>(), LapFragmentType.FULL_LAP)).Returns("");
         mockFastestFragmentTimesStore.Setup(m => m.GetFragmentTimeIndicator(It.IsAny<TestableOpponent>(), It.IsAny<TimeSpan>(), LapFragmentType.FULL_LAP)).Returns("ENTRY_BEST");
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockPropertyManager.Verify(m => m.Add(6, "Sector1Time", "21.402"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "Sector1Indicator", "ENTRY_BEST"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "Sector2Time", "1:01.953"), Times.Once());
@@ -357,7 +293,7 @@ public class RaceEntryProcessorTest
         newEntryData.CurrentTimes.Sector1 = TimeSpan.Parse("00:00:21.2100000");
         mockFastestFragmentTimesStore.Setup(m => m.GetCurrentLapFragmentTimeIndicator(It.IsAny<TestableOpponent>(), LapFragmentType.SECTOR_1)).Returns("CLASS_BEST");
         newEntryData.CurrentSector = 2;
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockPropertyManager.Verify(m => m.Add(6, "Sector1Time", "21.210"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "Sector1Indicator", "CLASS_BEST"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "Sector2Time", ""), Times.Once());
@@ -374,7 +310,7 @@ public class RaceEntryProcessorTest
         newEntryData.CurrentTimes.Sector2 = TimeSpan.Parse("00:01:02.3580000");
         mockFastestFragmentTimesStore.Setup(m => m.GetCurrentLapFragmentTimeIndicator(It.IsAny<TestableOpponent>(), LapFragmentType.SECTOR_2)).Returns("ENTRY_BEST");
         newEntryData.CurrentSector = 3;
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockPropertyManager.Verify(m => m.Add(6, "Sector1Time", "21.210"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "Sector1Indicator", "CLASS_BEST"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "Sector2Time", "1:02.358"), Times.Once());
@@ -391,7 +327,7 @@ public class RaceEntryProcessorTest
         newEntryData.BestTimes.FullLap = null;
         newEntryData.LastTimes.FullLap = TimeSpan.Parse("00:01:24.1090000");
         mockFastestFragmentTimesStore.Setup(m => m.GetLastLapFragmentTimeIndicator(It.IsAny<TestableOpponent>(), LapFragmentType.FULL_LAP)).Returns("CLASS_BEST");
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockPropertyManager.Verify(m => m.Add(6, "BestLapTime", "1:24.109"), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "BestLapTimeIndicator", "CLASS_BEST"), Times.Once());
         mockPropertyManager.Invocations.Clear();
@@ -432,7 +368,7 @@ public class RaceEntryProcessorTest
         };
 
         mockRaceEventHandler.Setup(m => m.GetPitDataByEntryId(It.IsAny<string>())).Returns(new EntryPitData("107", 4, 194, 42, 26));
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockPropertyManager.Verify(m => m.Add(6, "InPits", true), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "PitStopsTotal", 4), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "PitStopsTotalDuration", 194), Times.Once());
@@ -442,7 +378,7 @@ public class RaceEntryProcessorTest
 
         // and now when no pitData exists yet
         mockRaceEventHandler.Setup(m => m.GetPitDataByEntryId(It.IsAny<string>())).Returns(new EntryPitData("107", 0, 0, null, null));
-        processor.Process("testgame_testtrack_race", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
+        processor.Process("testgame_testtrack", SessionType.Race, 6, newEntryData, oldEntryData, null, null, mockFastestFragmentTimesStore.Object, new EntryProgressStore("Testgame"));
         mockPropertyManager.Verify(m => m.Add(6, "PitStopsTotal", 0), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "PitStopsTotalDuration", 0), Times.Once());
         mockPropertyManager.Verify(m => m.Add(6, "PitStopLastDuration", (int?)null), Times.Once());

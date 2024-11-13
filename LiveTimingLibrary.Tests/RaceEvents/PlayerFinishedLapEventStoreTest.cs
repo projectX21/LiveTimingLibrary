@@ -1,18 +1,20 @@
 public class PlayerFinishedLapEventStoreTest
 {
     [Fact]
-    public void TestShouldThrowWhenFirstLapHasNotLapNumber1()
+    public void TestIsAddable()
     {
         var store = new PlayerFinishedLapEventStore();
-        Assert.Throws<Exception>(() => store.Add(GetSecondLap()));
-    }
 
-    [Fact]
-    public void TestShouldThrowWhenConsecutiveLapNumberDoesNotMatch()
-    {
-        var store = new PlayerFinishedLapEventStore();
+        // Lap 2 should not be added when store is empty yet
+        store.Add(GetSecondLap());
+        Assert.Equal(TimeSpan.Zero, store.CalcTotalElapsedTimeAfterLastCompletedLap());
+
         store.Add(GetFirstLap());
-        Assert.Throws<Exception>(() => store.Add(GetThirdLap()));
+        Assert.Equal(TimeSpan.Parse("00:01:45.2910000"), store.CalcTotalElapsedTimeAfterLastCompletedLap());
+
+        // Lap 3 should not be added when lap 2 doesn't exist
+        store.Add(GetThirdLap());
+        Assert.Equal(TimeSpan.Parse("00:01:45.2910000"), store.CalcTotalElapsedTimeAfterLastCompletedLap());
     }
 
     [Fact]

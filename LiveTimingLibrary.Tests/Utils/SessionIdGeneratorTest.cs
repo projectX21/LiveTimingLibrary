@@ -3,13 +3,12 @@ public class SessionIdGeneratorTest
     [Fact]
     public void TestGenerate()
     {
-        var data = new TestableStatusDataBase
+        var data = new TestableGameData
         {
             GameName = "Testgame",
             TrackName = "Testtrack New",
-            SessionName = "Race"
         };
 
-        Assert.Equal("testgame_testtrack_new_race", SessionIdGenerator.Generate(data));
+        Assert.Equal("testgame_testtrack_new", SessionIdGenerator.Generate(data));
     }
 }

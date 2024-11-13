@@ -28,12 +28,7 @@ public class LiveTimingPluginProcessor
             SimHub.Logging.Current.Debug("GameProcessor::Run(): Omit calculation cycle");
             return;
         }
-        else if (gameData.NewData == null)
-        {
-            SimHub.Logging.Current.Debug("LiveTimingPluginProcessor::DataUpdate(): NewData isn't filled");
-            return;
-        }
-        else if (gameData.NewData.Opponents.Count() <= 1)
+        else if (gameData.Opponents?.Count() <= 1)
         {
             SimHub.Logging.Current.Debug("LiveTimingPluginProcessor::DataUpdate(): Opponents aren't set correctly");
             return;
@@ -42,7 +37,7 @@ public class LiveTimingPluginProcessor
         if (GameProcessor?.CurrentGameName != gameData.GameName)
         {
             SimHub.Logging.Current.Info($"LiveTimingPluginProcessor::DataUpdate(): GameName has changed {GameProcessor?.CurrentGameName} to {gameData.GameName}");
-            GameProcessor = new GameProcessor(_propertyManager, _raceEventHandler, _raceEntryProcessor, new EntryProgressStore(gameData.GameName), gameData.GameName, SessionIdGenerator.Generate(gameData.NewData));
+            GameProcessor = new GameProcessor(_propertyManager, _raceEventHandler, _raceEntryProcessor, new EntryProgressStore(gameData.GameName), gameData.GameName, SessionIdGenerator.Generate(gameData));
         }
 
         GameProcessor.Run(gameData);
